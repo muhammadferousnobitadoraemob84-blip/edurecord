@@ -146,7 +146,7 @@
                     <i class="ph ph-cloud-slash text-4xl text-gray-400"></i>
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-1">No recordings found</h3>
-                <p class="text-gray-500 max-w-sm">No videos match your search, or none have been uploaded to the cloud yet.</p>
+                <p class="text-gray-500 max-w-sm">No videos match your search, or none have been uploaded yet.</p>
                 <button onclick="clearFilters()" class="mt-4 text-mustardDark font-semibold hover:underline">Clear all filters</button>
             </div>
         </div>
@@ -215,7 +215,7 @@
                 <div class="px-6 py-5 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <i class="ph-fill ph-cloud-arrow-up text-mustard text-2xl"></i>
-                        <h2 class="text-xl font-bold text-gray-900 tracking-tight">Upload to Cloud</h2>
+                        <h2 class="text-xl font-bold text-gray-900 tracking-tight">Upload to Platform</h2>
                     </div>
                     <button type="button" onclick="handleAdminLogout()" class="text-sm font-bold text-gray-500 hover:text-red-500 flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50">
                         <i class="ph-bold ph-lock-key"></i> Lock
@@ -256,16 +256,20 @@
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1.5">Recording File <span class="text-red-500">*</span></label>
                             <input type="file" id="uploadFile" accept="video/*, audio/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-mustard/10 file:text-mustardDark hover:file:bg-mustard/20 file:transition-colors file:cursor-pointer border border-gray-300 rounded-xl bg-gray-50 focus:outline-none cursor-pointer">
+                            <p class="text-xs text-gray-400 mt-1">Max size: 3MB for Demo environment.</p>
                         </div>
                     </div>
 
-                    <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-end border-t border-gray-100">
+                    <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-end border-t border-gray-100 items-center">
+                        <button type="button" onclick="window.wipeLocalData()" class="text-sm font-bold text-red-500 hover:text-red-700 transition-colors mr-auto flex items-center gap-1">
+                            <i class="ph-bold ph-trash"></i> Clear Local Data
+                        </button>
                         <button type="button" onclick="document.getElementById('uploadForm').reset()" class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 font-bold hover:bg-gray-50 transition-colors outline-none">
-                            Clear
+                            Clear Form
                         </button>
                         <button type="submit" id="submitBtn" class="px-8 py-2.5 bg-mustard hover:bg-mustardDark text-white font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 focus:ring-2 focus:ring-mustard/50 outline-none w-full sm:w-auto disabled:opacity-70 disabled:cursor-not-allowed">
                             <i class="ph-bold ph-cloud-arrow-up" id="submitIcon"></i>
-                            <span id="submitText">Upload to Cloud</span>
+                            <span id="submitText">Upload</span>
                         </button>
                     </div>
                 </form>
@@ -279,6 +283,27 @@
         </div>
 
     </main>
+
+    <!-- Media Player Modal (In-Browser Playback) -->
+    <div id="playerModal" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/85 backdrop-blur-md p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl w-full max-w-4xl flex flex-col shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden" id="playerModalContent">
+            <div class="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
+                <div class="flex items-center gap-2">
+                    <i class="ph-fill ph-play-circle text-mustard text-2xl"></i>
+                    <h3 class="text-lg font-bold text-gray-900 line-clamp-1" id="playerModalTitle">Playback</h3>
+                </div>
+                <button onclick="closePlayerModal()" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors focus:outline-none">
+                    <i class="ph ph-x text-xl"></i>
+                </button>
+            </div>
+            <div class="bg-black w-full flex justify-center items-center aspect-video relative">
+                <!-- Video tag handles both Audio and Video files elegantly -->
+                <video id="mediaPlayer" controls class="w-full h-full max-h-[70vh] object-contain shadow-inner">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
 
     <!-- AI Study Guide Modal -->
     <div id="aiModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
@@ -324,7 +349,7 @@
         let recordingsData = [];
         let currentUser = null;
         let isAdminAuthenticated = false;
-        let isCloudEnabled = false; // Tracks if we are in Gemini Sandbox or GitHub
+        let isCloudEnabled = false; // Tracks if we are in Sandbox or GitHub
         let registeredTeachers = JSON.parse(localStorage.getItem('registeredTeachers')) || [];
         const apiKey = ""; // Gemini API Key
 
@@ -496,7 +521,9 @@
 
             data.forEach((rec, index) => {
                 const delay = index * 0.05;
-                const playAction = rec.fileUrl ? `window.open('${rec.fileUrl}', '_blank')` : `alert('File missing.')`;
+                // Use the custom modal instead of opening a new tab
+                const safeTitle = rec.title.replace(/'/g, "\\'");
+                const playAction = rec.fileUrl ? `window.playMedia('${rec.fileUrl}', '${safeTitle}')` : `alert('File missing.')`;
 
                 const cardHTML = `
                     <article class="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col h-full shadow-sm hover:shadow-xl hover:border-mustard/50 transition-all duration-300 transform hover:-translate-y-1.5 relative overflow-hidden group card-enter" style="animation-delay: ${delay}s;">
@@ -524,6 +551,38 @@
                 grid.insertAdjacentHTML('beforeend', cardHTML);
             });
         }
+
+        // --- NEW: IN-BROWSER MEDIA PLAYER ---
+        window.playMedia = function(url, title) {
+            const modal = document.getElementById('playerModal');
+            const content = document.getElementById('playerModalContent');
+            const player = document.getElementById('mediaPlayer');
+            
+            document.getElementById('playerModalTitle').textContent = title || "Playback";
+            player.src = url;
+
+            modal.classList.replace('hidden', 'flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.replace('scale-95', 'scale-100');
+                player.play().catch(e => console.log("Auto-play prevented by browser policy", e));
+            }, 10);
+        };
+
+        window.closePlayerModal = function() {
+            const modal = document.getElementById('playerModal');
+            const content = document.getElementById('playerModalContent');
+            const player = document.getElementById('mediaPlayer');
+
+            modal.classList.add('opacity-0');
+            content.classList.replace('scale-100', 'scale-95');
+            player.pause();
+            
+            setTimeout(() => {
+                modal.classList.replace('flex', 'hidden');
+                player.src = ""; // Clear source to free memory
+            }, 300);
+        };
 
         // --- AI MODAL LOGIC ---
         window.generateAIStudyGuide = async function(id) {
@@ -576,6 +635,16 @@
         let app, auth, db, storage;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-record-system';
 
+        // Helper function to read file into Base64 String for local/demo embedding
+        const readFileAsDataURL = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        };
+
         // Detect if we have Firebase config (Gemini Environment) or empty (GitHub Pages)
         function initializeDatabaseEnv() {
             const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
@@ -623,11 +692,20 @@
         }
 
         function loadLocalData() {
-            const stored = localStorage.getItem('eduRecordingsLocal');
-            recordingsData = stored ? JSON.parse(stored) : [];
+            let stored = [];
+            try {
+                const raw = localStorage.getItem('eduRecordingsLocal');
+                if (raw) stored = JSON.parse(raw);
+            } catch (e) {
+                console.error("Local storage parse error", e);
+                localStorage.removeItem('eduRecordingsLocal'); // Clear corrupted data safely
+            }
+            
+            // Auto-delete the old dummy "Rabbit" videos from previous versions
+            recordingsData = stored.filter(rec => rec.fileUrl && !rec.fileUrl.includes('w3schools'));
             recordingsData.sort((a, b) => new Date(b.sortDate) - new Date(a.sortDate));
             
-            if (initialLoader) initialLoader.remove();
+            if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
             populateSubjectFilter(recordingsData);
             window.handleFilter();
         }
@@ -637,27 +715,43 @@
             const recordingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'recordings');
 
             onSnapshot(recordingsRef, (snapshot) => {
-                const newData = [];
+                let newData = [];
                 snapshot.forEach(doc => newData.push({ id: doc.id, ...doc.data() }));
                 
+                // Auto-delete the old dummy "Rabbit" videos from previous versions
+                newData = newData.filter(rec => rec.fileUrl && !rec.fileUrl.includes('w3schools'));
+
                 recordingsData = newData.sort((a, b) => new Date(b.sortDate) - new Date(a.sortDate));
-                if(initialLoader) initialLoader.remove();
+                if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
                 populateSubjectFilter(recordingsData);
                 window.handleFilter();
             }, (error) => {
                 console.error("Firestore Listen Error:", error);
-                if (initialLoader) initialLoader.remove();
+                if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
                 showToast("Error loading cloud recordings.", true);
             });
         }
 
         // --- UPLOAD LOGIC ---
+        window.wipeLocalData = function() {
+            if (confirm("Are you sure you want to delete all locally saved recordings? This fixes storage limits.")) {
+                localStorage.removeItem('eduRecordingsLocal');
+                recordingsData = [];
+                window.handleFilter();
+                showToast("Local storage wiped clean!");
+            }
+        };
+
         window.handleUpload = async function(e) {
             e.preventDefault();
 
             submitBtn.disabled = true;
-            submitText.textContent = "Uploading...";
+            submitText.textContent = "Processing...";
             submitIcon.className = "ph-bold ph-spinner animate-spin";
+
+            // Safety limits for Data URL embedding
+            const FIRESTORE_LIMIT = 900 * 1024; // 900KB safe limit for Firestore Doc
+            const LOCAL_LIMIT = 3 * 1024 * 1024; // 3MB safe limit for LocalStorage
 
             try {
                 let subject = document.getElementById('uploadSubject').value || "OTHER";
@@ -670,7 +764,7 @@
                 const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
                 const displayDateStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
                 
-                let downloadURL = "https://www.w3schools.com/html/mov_bbb.mp4"; // Default fallback
+                let downloadURL = ""; 
 
                 // Check environment for upload
                 if (isCloudEnabled) {
@@ -683,8 +777,12 @@
                             const snapshot = await uploadBytes(storageRef, file);
                             downloadURL = await getDownloadURL(snapshot.ref);
                         } catch (e) {
-                            console.warn("Storage write blocked. Using sample video.");
-                            showToast("Demo Environment: Using sample video file.", false);
+                            console.warn("Storage write blocked. Trying local embedding...");
+                            if (file.size > FIRESTORE_LIMIT) {
+                                throw new Error("File too large for Cloud Demo Database (>900KB).");
+                            }
+                            downloadURL = await readFileAsDataURL(file);
+                            showToast("Demo Environment: Audio/Video embedded to database.", false);
                         }
                     }
 
@@ -696,12 +794,29 @@
 
                 } else {
                     // Local Storage Mode (GitHub Pages)
+                    if (file) {
+                        if (file.size > LOCAL_LIMIT) {
+                            throw new Error("File too large for Local Database (>3MB).");
+                        }
+                        submitText.textContent = "Encoding File...";
+                        downloadURL = await readFileAsDataURL(file);
+                    }
+
                     const newRecord = {
                         id: Date.now().toString(),
                         subject, teacher, title, sortDate: dateInput, dateStr: displayDateStr, fileUrl: downloadURL, createdAt: Date.now()
                     };
                     recordingsData.push(newRecord);
-                    localStorage.setItem('eduRecordingsLocal', JSON.stringify(recordingsData));
+
+                    try {
+                        localStorage.setItem('eduRecordingsLocal', JSON.stringify(recordingsData));
+                    } catch (e) {
+                        recordingsData.pop(); // Remove failed record
+                        if (e.name === 'QuotaExceededError') {
+                            throw new Error("Browser storage is full! Please delete some data.");
+                        }
+                        throw e;
+                    }
                     loadLocalData(); // Refresh UI
                 }
 
@@ -711,7 +826,7 @@
 
             } catch (error) {
                 console.error("Upload failed:", error);
-                showToast('Error uploading. Check console.', true);
+                showToast(error.message || 'Error uploading. Check console.', true);
             } finally {
                 submitBtn.disabled = false;
                 submitText.textContent = "Upload";
@@ -720,15 +835,31 @@
         };
 
         // ==========================================
-        // 4. INIT SCRIPT ON LOAD
+        // 4. INIT SCRIPT ON LOAD (With Failsafes)
         // ==========================================
-        document.getElementById('uploadDate').valueAsDate = new Date();
-        searchInput.addEventListener('input', window.handleFilter);
-        subjectFilter.addEventListener('change', window.handleFilter);
+        window.addEventListener('load', () => {
+            document.getElementById('uploadDate').valueAsDate = new Date();
+            searchInput.addEventListener('input', window.handleFilter);
+            subjectFilter.addEventListener('change', window.handleFilter);
 
-        // Start App
-        initializeDatabaseEnv();
-        initAuth();
+            // Safely Start App
+            try {
+                initializeDatabaseEnv();
+                initAuth();
+            } catch (e) {
+                console.error("Fatal initialization error:", e);
+                if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
+            }
+
+            // Absolute Failsafe: Force loader to disappear after 3 seconds no matter what happens
+            setTimeout(() => {
+                const loader = document.getElementById('initialLoader');
+                if (loader) {
+                    loader.remove();
+                    window.handleFilter(); // Force UI to show empty state
+                }
+            }, 3000);
+        });
 
     </script>
 </body>

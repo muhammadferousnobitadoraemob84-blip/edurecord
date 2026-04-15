@@ -256,7 +256,7 @@
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1.5">Recording File <span class="text-red-500">*</span></label>
                             <input type="file" id="uploadFile" accept="video/*, audio/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-mustard/10 file:text-mustardDark hover:file:bg-mustard/20 file:transition-colors file:cursor-pointer border border-gray-300 rounded-xl bg-gray-50 focus:outline-none cursor-pointer">
-                            <p class="text-xs text-gray-400 mt-1">Max size: 3MB for Demo environment.</p>
+                            <p class="text-xs text-gray-400 mt-1">Max size: 600GB per file. Limit: 60 recordings.</p>
                         </div>
                     </div>
 
@@ -635,15 +635,24 @@
         let app, auth, db, storage;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-record-system';
 
-        // Helper function to read file into Base64 String for local/demo embedding
-        const readFileAsDataURL = (file) => {
+        // Native IndexedDB Wrapper for handling massive local files natively
+        const DB_NAME = 'EduRecordingsDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'recordings';
+
+        function getDB() {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject("IndexedDB error");
+                request.onsuccess = () => resolve(request.result);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
             });
-        };
+        }
 
         // Detect if we have Firebase config (Gemini Environment) or empty (GitHub Pages)
         function initializeDatabaseEnv() {
@@ -691,23 +700,36 @@
             }
         }
 
-        function loadLocalData() {
-            let stored = [];
+        async function loadLocalData() {
             try {
-                const raw = localStorage.getItem('eduRecordingsLocal');
-                if (raw) stored = JSON.parse(raw);
+                const db = await getDB();
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    let stored = request.result || [];
+                    
+                    // Remove legacy w3schools videos
+                    stored = stored.filter(rec => !(rec.fileUrl && typeof rec.fileUrl === 'string' && rec.fileUrl.includes('w3schools')));
+
+                    // Generate Object URLs for raw Blobs (Supports Huge Files)
+                    recordingsData = stored.map(rec => {
+                        if (rec.fileBlob) {
+                            rec.fileUrl = URL.createObjectURL(rec.fileBlob);
+                        }
+                        return rec;
+                    });
+
+                    recordingsData.sort((a, b) => new Date(b.sortDate) - new Date(a.sortDate));
+                    if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
+                    populateSubjectFilter(recordingsData);
+                    window.handleFilter();
+                };
             } catch (e) {
-                console.error("Local storage parse error", e);
-                localStorage.removeItem('eduRecordingsLocal'); // Clear corrupted data safely
+                console.error("Local DB load error", e);
+                if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
             }
-            
-            // Auto-delete the old dummy "Rabbit" videos from previous versions
-            recordingsData = stored.filter(rec => rec.fileUrl && !rec.fileUrl.includes('w3schools'));
-            recordingsData.sort((a, b) => new Date(b.sortDate) - new Date(a.sortDate));
-            
-            if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
-            populateSubjectFilter(recordingsData);
-            window.handleFilter();
         }
 
         function listenToCloudRecordings() {
@@ -733,12 +755,20 @@
         }
 
         // --- UPLOAD LOGIC ---
-        window.wipeLocalData = function() {
-            if (confirm("Are you sure you want to delete all locally saved recordings? This fixes storage limits.")) {
-                localStorage.removeItem('eduRecordingsLocal');
-                recordingsData = [];
-                window.handleFilter();
-                showToast("Local storage wiped clean!");
+        window.wipeLocalData = async function() {
+            if (confirm("Are you sure you want to delete all locally saved recordings? This frees up disk space.")) {
+                try {
+                    const db = await getDB();
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    tx.objectStore(STORE_NAME).clear();
+                    tx.oncomplete = () => {
+                        recordingsData = [];
+                        window.handleFilter();
+                        showToast("Local database wiped clean!");
+                    };
+                } catch(e) {
+                    console.error(e);
+                }
             }
         };
 
@@ -749,16 +779,23 @@
             submitText.textContent = "Processing...";
             submitIcon.className = "ph-bold ph-spinner animate-spin";
 
-            // Safety limits for Data URL embedding
-            const FIRESTORE_LIMIT = 900 * 1024; // 900KB safe limit for Firestore Doc
-            const LOCAL_LIMIT = 3 * 1024 * 1024; // 3MB safe limit for LocalStorage
+            const MAX_RECORDINGS = 60;
+            const MAX_FILE_SIZE = 600 * 1024 * 1024 * 1024; // 600 GB limit 
 
             try {
+                if (recordingsData.length >= MAX_RECORDINGS) {
+                    throw new Error(`Maximum limit reached (${MAX_RECORDINGS} recordings). Please delete some data.`);
+                }
+
                 let subject = document.getElementById('uploadSubject').value || "OTHER";
                 const teacher = document.getElementById('uploadTeacher').value.toUpperCase();
                 const title = document.getElementById('uploadTitle').value.toUpperCase();
                 const dateInput = document.getElementById('uploadDate').value;
                 const file = document.getElementById('uploadFile').files[0];
+
+                if (file && file.size > MAX_FILE_SIZE) {
+                    throw new Error("File exceeds the 600GB maximum size limit.");
+                }
 
                 const d = new Date(dateInput);
                 const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
@@ -777,12 +814,10 @@
                             const snapshot = await uploadBytes(storageRef, file);
                             downloadURL = await getDownloadURL(snapshot.ref);
                         } catch (e) {
-                            console.warn("Storage write blocked. Trying local embedding...");
-                            if (file.size > FIRESTORE_LIMIT) {
-                                throw new Error("File too large for Cloud Demo Database (>900KB).");
+                            if (e.message && e.message.includes("unauthorized")) {
+                                throw new Error("Firebase blocked upload. Update your Firebase Storage Rules to allow writes.");
                             }
-                            downloadURL = await readFileAsDataURL(file);
-                            showToast("Demo Environment: Audio/Video embedded to database.", false);
+                            throw new Error("Cloud storage upload failed.");
                         }
                     }
 
@@ -793,31 +828,26 @@
                     });
 
                 } else {
-                    // Local Storage Mode (GitHub Pages)
-                    if (file) {
-                        if (file.size > LOCAL_LIMIT) {
-                            throw new Error("File too large for Local Database (>3MB).");
-                        }
-                        submitText.textContent = "Encoding File...";
-                        downloadURL = await readFileAsDataURL(file);
-                    }
+                    // Local Database Mode (IndexedDB)
+                    submitText.textContent = "Saving locally...";
 
                     const newRecord = {
                         id: Date.now().toString(),
-                        subject, teacher, title, sortDate: dateInput, dateStr: displayDateStr, fileUrl: downloadURL, createdAt: Date.now()
+                        subject, teacher, title, sortDate: dateInput, dateStr: displayDateStr, 
+                        createdAt: Date.now(),
+                        fileBlob: file // Native Blob storage prevents browser crash!
                     };
-                    recordingsData.push(newRecord);
 
-                    try {
-                        localStorage.setItem('eduRecordingsLocal', JSON.stringify(recordingsData));
-                    } catch (e) {
-                        recordingsData.pop(); // Remove failed record
-                        if (e.name === 'QuotaExceededError') {
-                            throw new Error("Browser storage is full! Please delete some data.");
-                        }
-                        throw e;
-                    }
-                    loadLocalData(); // Refresh UI
+                    const database = await getDB();
+                    await new Promise((resolve, reject) => {
+                        const tx = database.transaction(STORE_NAME, 'readwrite');
+                        const store = tx.objectStore(STORE_NAME);
+                        store.put(newRecord);
+                        tx.oncomplete = resolve;
+                        tx.onerror = () => reject(new Error("Disk full or database error."));
+                    });
+                    
+                    await loadLocalData(); // Refresh UI
                 }
 
                 showToast('Recording published successfully!');

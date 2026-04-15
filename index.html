@@ -284,23 +284,37 @@
 
     </main>
 
-    <!-- Media Player Modal (In-Browser Playback) -->
-    <div id="playerModal" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/85 backdrop-blur-md p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl w-full max-w-4xl flex flex-col shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden" id="playerModalContent">
-            <div class="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
-                <div class="flex items-center gap-2">
-                    <i class="ph-fill ph-play-circle text-mustard text-2xl"></i>
-                    <h3 class="text-lg font-bold text-gray-900 line-clamp-1" id="playerModalTitle">Playback</h3>
+    <!-- Media Player Modal (Compact Audio/Voice Playback) -->
+    <div id="playerModal" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl w-full max-w-lg flex flex-col shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden" id="playerModalContent">
+            
+            <!-- Header & Title Area -->
+            <div class="flex items-start justify-between p-6 border-b border-gray-100">
+                <div class="flex items-center gap-4">
+                    <div class="bg-mustard/20 text-mustardDark p-3 rounded-2xl flex-shrink-0 relative overflow-hidden">
+                        <!-- Playing animation dots -->
+                        <span class="absolute top-1 right-1 flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-mustardDark opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-mustard text-mustardDark"></span>
+                        </span>
+                        <i class="ph-fill ph-headphones text-3xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-mustardDark uppercase tracking-widest mb-1">Now Playing</p>
+                        <h3 class="text-xl font-black text-gray-900 leading-tight line-clamp-2" id="playerModalTitle">Playback</h3>
+                    </div>
                 </div>
-                <button onclick="closePlayerModal()" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors focus:outline-none">
+                <button onclick="closePlayerModal()" class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-2.5 rounded-full transition-colors focus:outline-none shrink-0 ml-2">
                     <i class="ph ph-x text-xl"></i>
                 </button>
             </div>
-            <div class="bg-black w-full flex justify-center items-center aspect-video relative">
-                <!-- Video tag handles both Audio and Video files elegantly -->
-                <video id="mediaPlayer" controls class="w-full h-full max-h-[70vh] object-contain shadow-inner">
-                    Your browser does not support the video tag.
-                </video>
+
+            <!-- Seeking Bar / Player Controls -->
+            <div class="p-6 bg-gray-50 w-full flex flex-col justify-center items-center">
+                <!-- Audio tag takes up minimal vertical space but works for both audio and video files -->
+                <audio id="mediaPlayer" controls class="w-full h-12 outline-none rounded-xl">
+                    Your browser does not support the audio tag.
+                </audio>
             </div>
         </div>
     </div>

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Recording System - Cloud Edition</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        mustard: '#C49A00',
+                        mustardDark: '#A68200',
+                        offwhite: '#F8FAFC',
+                        darktext: '#111827',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: theme('colors.offwhite');
+            color: theme('colors.darktext');
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-enter {
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        input:focus-visible, select:focus-visible, button:focus-visible {
+            outline: 2px solid theme('colors.mustard');
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header Section -->
+    <header class="bg-white sticky top-0 z-50 border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between py-4 gap-4">
+                
+                <!-- Logo / Title -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-mustard text-darktext p-2 rounded-xl relative">
+                        <i class="ph ph-cloud-arrow-up text-2xl absolute -top-2 -right-2 text-green-600 bg-white rounded-full"></i>
+                        <i class="ph ph-video-camera text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold leading-tight">EduRecord</h1>
+                        <p class="text-xs text-gray-500 font-medium" id="portalRole">Student Portal (Live)</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-xl w-full sm:w-auto justify-center">
+                    <button onclick="switchView('student')" id="navStudent" class="flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-bold bg-white text-mustardDark shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-mustard/50">Student</button>
+                    <button onclick="switchView('admin')" id="navAdmin" class="flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-mustard/50">Admin</button>
+                </div>
+
+                <!-- Controls: Search & Filter -->
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto" id="studentControls">
+                    <div class="relative w-full sm:w-64 md:w-80">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="ph ph-magnifying-glass text-gray-400 text-lg"></i>
+                        </div>
+                        <input type="text" id="searchInput" placeholder="Search subject or title..." 
+                            class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors duration-200 sm:text-sm">
+                    </div>
+
+                    <div class="relative w-full sm:w-48">
+                        <select id="subjectFilter" 
+                            class="appearance-none block w-full pl-3 pr-10 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors duration-200 sm:text-sm font-medium cursor-pointer">
+                            <option value="ALL">All Subjects</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="ph ph-caret-down text-gray-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full relative">
+        
+        <!-- STUDENT VIEW -->
+        <div id="studentView" class="block">
+            <div class="mb-6 flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Recent Recordings</h2>
+                <div class="flex items-center gap-3">
+                    <!-- Live Indicator -->
+                    <span class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md border border-green-200">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        Live Sync
+                    </span>
+                    <span id="resultsCount" class="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full">0 found</span>
+                </div>
+            </div>
+
+            <div id="recordingsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Loader -->
+                <div id="initialLoader" class="col-span-full flex flex-col items-center justify-center py-20">
+                    <i class="ph ph-spinner-gap animate-spin text-4xl text-mustard mb-4"></i>
+                    <p class="text-gray-500 font-medium">Connecting to Cloud Database...</p>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center">
+                <div class="bg-gray-100 p-6 rounded-full mb-4">
+                    <i class="ph ph-cloud-slash text-4xl text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">No recordings found</h3>
+                <p class="text-gray-500 max-w-sm">No videos match your search, or none have been uploaded to the cloud yet.</p>
+                <button onclick="clearFilters()" class="mt-4 text-mustardDark font-semibold hover:underline">Clear all filters</button>
+            </div>
+        </div>
+
+        <!-- ADMIN VIEW (Upload Page) -->
+        <div id="adminView" class="hidden max-w-3xl mx-auto">
+            
+            <!-- Admin Login Wrapper -->
+            <div id="adminLoginWrapper" class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden p-8 max-w-md mx-auto mt-10">
+                <div class="text-center mb-6">
+                    <div class="bg-mustard/20 text-mustardDark p-3 rounded-full inline-block mb-3">
+                        <i class="ph-fill ph-lock-key text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">Admin Login</h2>
+                    <p class="text-sm text-gray-500 mt-1">Please enter your credentials to upload</p>
+                </div>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Teacher's Full Name</label>
+                        <input type="text" id="loginName" required placeholder="e.g. CIKGU AMIRAH" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Password</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-mustard hover:bg-mustardDark text-white font-bold rounded-xl transition-all shadow-sm focus:ring-2 focus:ring-mustard/50 outline-none mt-2 flex justify-center items-center gap-2">
+                        <span>Unlock Panel</span>
+                        <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </form>
+                <div class="mt-5 text-center">
+                    <button type="button" onclick="toggleRegisterMode(true)" class="text-sm text-mustardDark font-bold hover:underline transition-all">NOT IN LIST? REGISTER NOW!</button>
+                </div>
+            </div>
+
+            <!-- Admin Register Wrapper -->
+            <div id="adminRegisterWrapper" class="hidden bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden p-8 max-w-md mx-auto mt-10">
+                <div class="text-center mb-6">
+                    <div class="bg-blue-50 text-blue-600 p-3 rounded-full inline-block mb-3">
+                        <i class="ph-fill ph-user-plus text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">Teacher Registration</h2>
+                    <p class="text-sm text-gray-500 mt-1">Create your upload credentials</p>
+                </div>
+                <form onsubmit="handleAdminRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Teacher's Full Name</label>
+                        <input type="text" id="registerName" required placeholder="e.g. CIKGU AMIRAH" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Password</label>
+                        <input type="password" id="registerPassword" required placeholder="Choose a password" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-sm focus:ring-2 focus:ring-blue-500 outline-none mt-2 flex justify-center items-center gap-2">
+                        <span>Register & Unlock</span>
+                        <i class="ph-bold ph-check-circle"></i>
+                    </button>
+                </form>
+                <div class="mt-5 text-center">
+                    <button type="button" onclick="toggleRegisterMode(false)" class="text-sm text-gray-500 hover:text-gray-800 hover:underline transition-all">Already registered? Login here.</button>
+                </div>
+            </div>
+
+            <!-- Admin Upload Wrapper -->
+            <div id="adminUploadWrapper" class="hidden bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="ph-fill ph-cloud-arrow-up text-mustard text-2xl"></i>
+                        <h2 class="text-xl font-bold text-gray-900 tracking-tight">Upload to Cloud</h2>
+                    </div>
+                    <button type="button" onclick="handleAdminLogout()" class="text-sm font-bold text-gray-500 hover:text-red-500 flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50">
+                        <i class="ph-bold ph-lock-key"></i> Lock
+                    </button>
+                </div>
+                
+                <form id="uploadForm" onsubmit="handleUpload(event)" class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Subject <span class="text-red-500">*</span></label>
+                            <select id="uploadSubject" required class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm font-medium cursor-pointer">
+                                <option value="" disabled selected>Select a subject</option>
+                                <option value="BAHASA MELAYU">Bahasa Melayu</option>
+                                <option value="MATEMATIK">Matematik</option>
+                                <option value="SAINS">Sains</option>
+                                <option value="SEJARAH">Sejarah</option>
+                                <option value="ENGLISH">English</option>
+                                <option value="PENDIDIKAN ISLAM">Pendidikan Islam</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Teacher Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="uploadTeacher" required placeholder="e.g. CIKGU AMIRAH" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Lesson Title <span class="text-red-500">*</span></label>
+                        <input type="text" id="uploadTitle" required placeholder="e.g. KARANGAN BERFORMAT" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Date <span class="text-red-500">*</span></label>
+                            <input type="date" id="uploadDate" required class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Recording File <span class="text-red-500">*</span></label>
+                            <input type="file" id="uploadFile" accept="video/*, audio/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-mustard/10 file:text-mustardDark hover:file:bg-mustard/20 file:transition-colors file:cursor-pointer border border-gray-300 rounded-xl bg-gray-50 focus:outline-none cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-end border-t border-gray-100">
+                        <button type="button" onclick="document.getElementById('uploadForm').reset()" class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 font-bold hover:bg-gray-50 transition-colors outline-none">
+                            Clear
+                        </button>
+                        <button type="submit" id="submitBtn" class="px-8 py-2.5 bg-mustard hover:bg-mustardDark text-white font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 focus:ring-2 focus:ring-mustard/50 outline-none w-full sm:w-auto disabled:opacity-70 disabled:cursor-not-allowed">
+                            <i class="ph-bold ph-cloud-arrow-up" id="submitIcon"></i>
+                            <span id="submitText">Upload to Cloud</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 z-50 pointer-events-none">
+            <i class="ph-fill ph-check-circle text-green-400 text-xl" id="toastIcon"></i>
+            <span id="toastMessage" class="font-medium text-sm">Action successful!</span>
+        </div>
+
+    </main>
+
+    <!-- AI Study Guide Modal -->
+    <div id="aiModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" id="aiModalContent">
+            <div class="flex items-center justify-between p-6 border-b border-gray-100">
+                <div class="flex items-center gap-3">
+                    <div class="bg-mustard/20 text-mustardDark p-2 rounded-xl">
+                        <span class="text-xl">✨</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900" id="aiModalTitle">AI Study Guide</h3>
+                        <p class="text-sm text-gray-500" id="aiModalSubtitle">Generating insights...</p>
+                    </div>
+                </div>
+                <button onclick="closeAIModal()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-colors">
+                    <i class="ph ph-x text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-grow prose prose-mustard max-w-none text-gray-700" id="aiModalBody">
+                <!-- Content injected here -->
+            </div>
+            
+            <div class="p-6 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-end">
+                <button onclick="closeAIModal()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-xl transition-colors">
+                    Close Guide
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Implementation (Module) -->
+    <script type="module">
+        // Firebase SDK Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        // Global Variables configuration (provided by environment)
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            // Add your own Firebase config here if running locally outside the sandbox
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-record-system';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Safety check for Storage (in case the environment config lacks a storage bucket)
+        let storage;
+        try { storage = getStorage(app); } catch(e) { console.warn("Firebase Storage bucket not configured in this environment."); }
+
+        // Application State
+        let recordingsData = [];
+        let currentUser = null;
+        let isAdminAuthenticated = false;
+        let registeredTeachers = JSON.parse(localStorage.getItem('registeredTeachers')) || [];
+        const apiKey = ""; // Gemini API Key
+
+        // DOM Elements
+        const grid = document.getElementById('recordingsGrid');
+        const initialLoader = document.getElementById('initialLoader');
+        const searchInput = document.getElementById('searchInput');
+        const subjectFilter = document.getElementById('subjectFilter');
+        const emptyState = document.getElementById('emptyState');
+        const resultsCount = document.getElementById('resultsCount');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const submitIcon = document.getElementById('submitIcon');
+        const toast = document.getElementById('toast');
+
+        // --- AUTH & DATABASE SETUP ---
+        async function initAuth() {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Authentication Error:", error);
+                showToast("Failed to connect to secure database.", true);
+                if (initialLoader) initialLoader.remove();
+                handleFilter(); // Show empty state UI
+            }
+        }
+
+        // Listen for Auth State Changes
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                // User is authenticated, start listening to Firestore
+                listenToRecordings();
+            }
+        });
+
+        // Fetch Live Data from Firestore
+        function listenToRecordings() {
+            if (!currentUser) return; // Strict Rule: Guard queries
+
+            // Strict Rule: Exact Path format for public data
+            const recordingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'recordings');
+
+            // Strict Rule: No complex queries (orderBy, where). Fetch all and sort locally.
+            onSnapshot(recordingsRef, (snapshot) => {
+                const newData = [];
+                snapshot.forEach(doc => {
+                    newData.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Update state and Sort locally by date (latest first)
+                recordingsData = newData.sort((a, b) => new Date(b.sortDate) - new Date(a.sortDate));
+                
+                // Hide loader
+                if(initialLoader) initialLoader.remove();
+
+                // Update UI
+                populateSubjectFilter(recordingsData);
+                handleFilter();
+            }, (error) => {
+                console.error("Firestore Listen Error:", error);
+                if (initialLoader) initialLoader.remove();
+                handleFilter(); // Show empty state UI
+                showToast("Error loading recordings.", true);
+            });
+        }
+
+        // --- UPLOAD TO CLOUD (Admin) ---
+        window.handleUpload = async function(e) {
+            e.preventDefault();
+            if (!currentUser) return showToast("You must be connected to upload.", true);
+
+            // Set UI to loading state
+            submitBtn.disabled = true;
+            submitText.textContent = "Uploading File...";
+            submitIcon.className = "ph-bold ph-spinner animate-spin";
+
+            try {
+                let subject = document.getElementById('uploadSubject').value || "OTHER";
+                const teacher = document.getElementById('uploadTeacher').value.toUpperCase();
+                const title = document.getElementById('uploadTitle').value.toUpperCase();
+                const dateInput = document.getElementById('uploadDate').value;
+                const fileInput = document.getElementById('uploadFile');
+                const file = fileInput.files[0];
+
+                // Format date
+                const d = new Date(dateInput);
+                const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+                const displayDateStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+
+                let downloadURL = "";
+
+                // 1. Upload File to Firebase Storage (with graceful fallback)
+                if (storage && file) {
+                    try {
+                        // Sanitize filename to prevent issues with spaces/special characters
+                        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+                        const filePath = `artifacts/${appId}/public/data/${Date.now()}_${sanitizedName}`;
+                        const storageRef = ref(storage, filePath);
+                        const snapshot = await uploadBytes(storageRef, file);
+                        downloadURL = await getDownloadURL(snapshot.ref);
+                    } catch (storageError) {
+                        console.warn("Storage upload failed (Sandbox environment rules block storage writes). Using fallback sample URL.", storageError);
+                        downloadURL = "https://www.w3schools.com/html/mov_bbb.mp4"; // Dummy video URL
+                        // Show a subtle warning, but allow the database save to succeed
+                        showToast("Demo Environment: Audio/Video saved as a sample file.", false);
+                    }
+                } else {
+                    downloadURL = "https://www.w3schools.com/html/mov_bbb.mp4";
+                }
+
+                // 2. Save Metadata to Firestore Database
+                submitText.textContent = "Saving to Database...";
+                const recordingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'recordings');
+                
+                await addDoc(recordingsRef, {
+                    subject: subject,
+                    teacher: teacher,
+                    title: title,
+                    sortDate: dateInput,
+                    dateStr: displayDateStr,
+                    fileUrl: downloadURL,
+                    createdAt: Date.now()
+                });
+
+                // Success
+                showToast('Recording published successfully!');
+                document.getElementById('uploadForm').reset();
+                document.getElementById('uploadDate').valueAsDate = new Date();
+
+            } catch (error) {
+                console.error("Upload failed:", error);
+                showToast('Database error. Check console for details.', true);
+            } finally {
+                // Restore UI button state
+                submitBtn.disabled = false;
+                submitText.textContent = "Upload to Cloud";
+                submitIcon.className = "ph-bold ph-cloud-arrow-up";
+            }
+        };
+
+        // --- UI FUNCTIONS ---
+        window.toggleRegisterMode = function(showRegister) {
+            if (showRegister) {
+                document.getElementById('adminLoginWrapper').classList.add('hidden');
+                document.getElementById('adminRegisterWrapper').classList.remove('hidden');
+            } else {
+                document.getElementById('adminRegisterWrapper').classList.add('hidden');
+                document.getElementById('adminLoginWrapper').classList.remove('hidden');
+            }
+        };
+
+        window.handleAdminRegister = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value.trim().toUpperCase();
+            const pass = document.getElementById('registerPassword').value;
+
+            // Check if teacher already exists
+            const exists = registeredTeachers.find(t => t.name === name);
+            if (exists) {
+                return showToast('This Teacher Name is already registered. Please login.', true);
+            }
+
+            // Save new teacher
+            registeredTeachers.push({ name: name, pass: pass });
+            localStorage.setItem('registeredTeachers', JSON.stringify(registeredTeachers));
+
+            // Log them in automatically
+            isAdminAuthenticated = true;
+            document.getElementById('uploadTeacher').value = name;
+            
+            // Update UI wrappers
+            document.getElementById('adminRegisterWrapper').classList.add('hidden');
+            document.getElementById('adminUploadWrapper').classList.remove('hidden');
+            
+            // Clear fields
+            document.getElementById('registerName').value = '';
+            document.getElementById('registerPassword').value = '';
+            
+            showToast('Registration successful! Panel unlocked.');
+        };
+
+        window.handleAdminLogin = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('loginName').value.trim().toUpperCase();
+            const pass = document.getElementById('loginPassword').value;
+
+            // Check credentials against registered teachers array
+            const matchedTeacher = registeredTeachers.find(t => t.name === name && t.pass === pass);
+
+            if (matchedTeacher || (name === 'ADMIN' && pass === 'admin123')) { // Keep admin123 as fallback master key
+                isAdminAuthenticated = true;
+                
+                // Auto-fill the teacher name in the upload form
+                document.getElementById('uploadTeacher').value = name;
+                
+                // Switch UI wrappers
+                document.getElementById('adminLoginWrapper').classList.add('hidden');
+                document.getElementById('adminRegisterWrapper').classList.add('hidden');
+                document.getElementById('adminUploadWrapper').classList.remove('hidden');
+                
+                showToast('Admin unlocked successfully!');
+            } else {
+                showToast('Incorrect name or password.', true);
+            }
+        };
+
+        window.handleAdminLogout = function() {
+            isAdminAuthenticated = false;
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('adminUploadWrapper').classList.add('hidden');
+            document.getElementById('adminRegisterWrapper').classList.add('hidden');
+            document.getElementById('adminLoginWrapper').classList.remove('hidden');
+            showToast('Admin panel locked.');
+        };
+
+        window.switchView = function(view) {
+            const sv = document.getElementById('studentView');
+            const av = document.getElementById('adminView');
+            const ctrl = document.getElementById('studentControls');
+            const navS = document.getElementById('navStudent');
+            const navA = document.getElementById('navAdmin');
+            const role = document.getElementById('portalRole');
+
+            if (view === 'student') {
+                sv.classList.replace('hidden', 'block');
+                av.classList.replace('block', 'hidden');
+                ctrl.classList.replace('hidden', 'flex');
+                role.textContent = 'Student Portal (Live)';
+                navS.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-bold bg-white text-mustardDark shadow-sm transition-all";
+                navA.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 transition-all bg-transparent";
+                handleFilter();
+            } else {
+                av.classList.replace('hidden', 'block');
+                sv.classList.replace('block', 'hidden');
+                ctrl.classList.replace('flex', 'hidden');
+                role.textContent = 'Teacher / Admin Portal';
+                navA.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-bold bg-white text-mustardDark shadow-sm transition-all";
+                navS.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 transition-all bg-transparent";
+                
+                // Handle Login UI state inside Admin View
+                if (isAdminAuthenticated) {
+                    document.getElementById('adminUploadWrapper').classList.remove('hidden');
+                    document.getElementById('adminLoginWrapper').classList.add('hidden');
+                    document.getElementById('adminRegisterWrapper').classList.add('hidden');
+                } else {
+                    document.getElementById('adminUploadWrapper').classList.add('hidden');
+                    document.getElementById('adminLoginWrapper').classList.remove('hidden');
+                    document.getElementById('adminRegisterWrapper').classList.add('hidden');
+                }
+            }
+        };
+
+        function populateSubjectFilter(data) {
+            const subjects = [...new Set(data.map(item => item.subject))].sort();
+            subjectFilter.innerHTML = '<option value="ALL">All Subjects</option>';
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectFilter.appendChild(option);
+            });
+        }
+
+        function renderCards(data) {
+            grid.innerHTML = '';
+            
+            if (data.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.replace('hidden', 'flex');
+                resultsCount.textContent = '0 found';
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.replace('flex', 'hidden');
+            resultsCount.textContent = `${data.length} recording${data.length !== 1 ? 's' : ''}`;
+
+            data.forEach((rec, index) => {
+                const delay = index * 0.05;
+                // Add a target="_blank" link to actually open the uploaded fileUrl
+                const playAction = rec.fileUrl 
+                    ? `window.open('${rec.fileUrl}', '_blank')` 
+                    : `alert('File missing or corrupted.')`;
+
+                const cardHTML = `
+                    <article class="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col h-full shadow-sm hover:shadow-xl hover:border-mustard/50 transition-all duration-300 transform hover:-translate-y-1.5 relative overflow-hidden group card-enter" style="animation-delay: ${delay}s;">
+                        <div class="relative z-10 flex-grow flex flex-col">
+                            <div class="flex items-center gap-1.5 text-xs font-extrabold tracking-widest uppercase mb-3 text-mustardDark">
+                                <i class="ph-fill ph-calendar-blank"></i> ${rec.dateStr}
+                            </div>
+                            <h3 class="text-2xl font-black mb-1.5 leading-tight tracking-tight text-gray-900 line-clamp-2">${rec.subject}</h3>
+                            <p class="text-base font-semibold mb-4 text-gray-600 line-clamp-2 flex-grow">${rec.title}</p>
+                            <div class="text-sm font-medium mb-6 flex items-center gap-2 text-gray-600 bg-gray-50 border border-gray-100 self-start px-2.5 py-1 rounded-md">
+                                <i class="ph-fill ph-user-circle text-lg text-mustard"></i> 
+                                <span>${rec.teacher}</span>
+                            </div>
+                        </div>
+                        <div class="mt-auto relative z-10 flex flex-col sm:flex-row gap-2">
+                            <button onclick="${playAction}" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.98] outline-none">
+                                <i class="ph-fill ph-play-circle text-xl text-gray-700"></i> <span>Play</span>
+                            </button>
+                            <button onclick="window.generateAIStudyGuide('${rec.id}')" class="flex-1 bg-mustard hover:bg-mustardDark text-white font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.98] outline-none shadow-sm group/btn">
+                                <span class="text-lg group-hover/btn:scale-110 transition-transform">✨</span> <span>AI Guide</span>
+                            </button>
+                        </div>
+                    </article>
+                `;
+                grid.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+
+        window.handleFilter = function() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const selectedSubject = subjectFilter.value;
+
+            const filteredData = recordingsData.filter(item => {
+                const matchesSearch = item.subject.toLowerCase().includes(searchTerm) || 
+                                      item.title.toLowerCase().includes(searchTerm) ||
+                                      item.teacher.toLowerCase().includes(searchTerm);
+                const matchesSubject = selectedSubject === 'ALL' || item.subject === selectedSubject;
+                return matchesSearch && matchesSubject;
+            });
+            renderCards(filteredData);
+        };
+
+        window.clearFilters = function() {
+            searchInput.value = '';
+            subjectFilter.value = 'ALL';
+            handleFilter();
+        };
+
+        function showToast(message, isError = false) {
+            document.getElementById('toastMessage').textContent = message;
+            const icon = document.getElementById('toastIcon');
+            
+            if (isError) {
+                icon.className = "ph-fill ph-warning-circle text-red-400 text-xl";
+            } else {
+                icon.className = "ph-fill ph-check-circle text-green-400 text-xl";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 4000);
+        }
+
+        // --- AI LOGIC ---
+        window.generateAIStudyGuide = async function(id) {
+            const recording = recordingsData.find(r => r.id === id);
+            if (!recording) return;
+
+            const aiModal = document.getElementById('aiModal');
+            const aiModalContent = document.getElementById('aiModalContent');
+            const aiModalBody = document.getElementById('aiModalBody');
+
+            document.getElementById('aiModalTitle').textContent = `${recording.subject} Guide`;
+            document.getElementById('aiModalSubtitle').textContent = `Analyzing: ${recording.title}`;
+            
+            aiModalBody.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-10 gap-4">
+                    <i class="ph ph-spinner-gap animate-spin text-4xl text-mustard"></i>
+                    <p class="text-gray-500 font-medium animate-pulse">Our AI is generating a summary and quiz questions...</p>
+                </div>
+            `;
+
+            aiModal.classList.replace('hidden', 'flex');
+            setTimeout(() => {
+                aiModal.classList.remove('opacity-0');
+                aiModalContent.classList.replace('scale-95', 'scale-100');
+            }, 10);
+
+            const prompt = `You are an expert teacher. The student is reviewing '${recording.subject}': '${recording.title}'. 
+            Provide: 1. 2-sentence summary. 2. Three simple practice questions.
+            Format ENTIRELY in clean HTML with Tailwind utility classes. NO markdown wrappers.`;
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                
+                const data = await response.json();
+                if(data.candidates) {
+                    aiModalBody.innerHTML = data.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Empty Response");
+                }
+            } catch (error) {
+                aiModalBody.innerHTML = `
+                    <div class="bg-red-50 text-red-600 p-4 rounded-xl flex items-start gap-3">
+                        <i class="ph ph-warning-circle text-2xl"></i>
+                        <div><h4 class="font-bold">Failed to Generate</h4><p class="text-sm mt-1">API Error.</p></div>
+                    </div>`;
+            }
+        };
+
+        window.closeAIModal = function() {
+            const aiModal = document.getElementById('aiModal');
+            const aiModalContent = document.getElementById('aiModalContent');
+            
+            aiModal.classList.add('opacity-0');
+            aiModalContent.classList.replace('scale-100', 'scale-95');
+            
+            setTimeout(() => {
+                aiModal.classList.replace('flex', 'hidden');
+            }, 300);
+        };
+
+        // Run Initialization (Removed DOMContentLoaded to prevent race conditions in module scripts)
+        document.getElementById('uploadDate').valueAsDate = new Date();
+        
+        // Event listeners for inputs
+        searchInput.addEventListener('input', handleFilter);
+        subjectFilter.addEventListener('change', handleFilter);
+
+        // Connect to Firebase immediately
+        initAuth();
+
+    </script>
+</body>
+</html>

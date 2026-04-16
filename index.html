@@ -29,6 +29,7 @@
                         mustardDark: '#A68200',
                         offwhite: '#F8FAFC',
                         darktext: '#111827',
+                        google: '#4285F4',
                     }
                 }
             }
@@ -63,236 +64,278 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen bg-gray-50">
 
-    <!-- Header Section -->
-    <header class="bg-white sticky top-0 z-50 border-b border-gray-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between py-4 gap-4">
+    <!-- ========================================== -->
+    <!-- GLOBAL AUTHENTICATION GATEWAY -->
+    <!-- ========================================== -->
+    <div id="globalAuthWrapper" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-white">
+        <!-- Background Decoration -->
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-mustard/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+
+        <div class="w-full max-w-md relative z-10 text-center">
+            <!-- Portal Welcome Screen -->
+            <div class="bg-white border border-gray-100 rounded-3xl shadow-xl overflow-hidden p-10 transition-all duration-300">
+                <div class="mb-8">
+                    <div class="bg-blue-50 text-blue-600 p-4 rounded-full inline-flex items-center justify-center mb-5 border border-blue-100">
+                        <i class="ph-fill ph-student text-5xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-black text-gray-900 tracking-tight">DELIMa Portal</h2>
+                    <p class="text-sm text-gray-500 mt-3 font-medium leading-relaxed">
+                        Access the EduRecord Lesson Gallery. You must use your official Ministry of Education (MOE) account to proceed.
+                    </p>
+                </div>
                 
-                <!-- Logo / Title -->
-                <div class="flex items-center gap-3">
-                    <div class="bg-mustard text-darktext p-2 rounded-xl relative">
-                        <i class="ph ph-cloud-arrow-up text-2xl absolute -top-2 -right-2 text-green-600 bg-white rounded-full"></i>
-                        <i class="ph ph-video-camera text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold leading-tight">EduRecord</h1>
-                        <p class="text-xs text-gray-500 font-medium" id="portalRole">Student Portal (Live)</p>
-                    </div>
-                </div>
-
-                <!-- Navigation Links -->
-                <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-xl w-full sm:w-auto justify-center">
-                    <button onclick="switchView('student')" id="navStudent" class="flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-bold bg-white text-mustardDark shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-mustard/50">Student</button>
-                    <button onclick="switchView('admin')" id="navAdmin" class="flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-mustard/50">Admin</button>
-                </div>
-
-                <!-- Controls: Search & Filter -->
-                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto" id="studentControls">
-                    <div class="relative w-full sm:w-64 md:w-80">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="ph ph-magnifying-glass text-gray-400 text-lg"></i>
-                        </div>
-                        <input type="text" id="searchInput" placeholder="Search subject or title..." 
-                            class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors duration-200 sm:text-sm">
-                    </div>
-
-                    <div class="relative w-full sm:w-48">
-                        <select id="subjectFilter" 
-                            class="appearance-none block w-full pl-3 pr-10 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors duration-200 sm:text-sm font-medium cursor-pointer">
-                            <option value="ALL">All Subjects</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <i class="ph ph-caret-down text-gray-500"></i>
-                        </div>
-                    </div>
-                </div>
+                <!-- Sign in with Google Button -->
+                <button onclick="openGoogleAuthModal()" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-3.5 px-4 rounded-xl transition-all shadow-sm active:scale-[0.98] outline-none">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    <span>Sign in with Google</span>
+                </button>
             </div>
         </div>
-    </header>
+    </div>
 
-    <!-- Main Content -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full relative">
+    <!-- ========================================== -->
+    <!-- SIMULATED GOOGLE AUTH POPUP MODAL -->
+    <!-- ========================================== -->
+    <div id="googleAuthModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl w-full max-w-md flex flex-col shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden" id="googleAuthContent">
+            
+            <div class="p-8 flex flex-col items-center">
+                <!-- Google Logo -->
+                <svg class="w-20 mb-4" viewBox="0 0 92 30" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.8 23.7c-6.5 0-11.8-5.3-11.8-11.8S5.3 0 11.8 0c3.2 0 6.1 1.2 8.3 3.3l-3.3 3.3c-1.3-1.3-3.2-2.2-5-2.2-4.3 0-7.8 3.5-7.8 7.8s3.5 7.8 7.8 7.8c4.8 0 6.8-3.5 7.1-5.3H11.8v-4.5h11.5c.2.8.2 1.8.2 2.8 0 6.4-4.2 10.7-11.7 10.7zM42.1 8c-3.8 0-7 3-7 7.8s3.1 7.8 7 7.8c3.8 0 7-3 7-7.8s-3.2-7.8-7-7.8zm0 12c-1.8 0-3-1.4-3-4.2 0-2.9 1.3-4.2 3-4.2 1.8 0 3 1.4 3 4.2 0 2.9-1.2 4.2-3 4.2zm15.4-12c-3.8 0-7 3-7 7.8s3.1 7.8 7 7.8c3.8 0 7-3 7-7.8s-3.2-7.8-7-7.8zm0 12c-1.8 0-3-1.4-3-4.2 0-2.9 1.3-4.2 3-4.2 1.8 0 3 1.4 3 4.2 0 2.9-1.2 4.2-3 4.2zm23.6-11.5v2.8c-1-1.6-2.9-3.2-5.7-3.2-3.6 0-6.7 3.2-6.7 7.8 0 4.5 3.1 7.8 6.7 7.8 2.8 0 4.7-1.6 5.6-3.2v2.4c0 2.9-1.6 4.4-3.7 4.4-1.8 0-2.9-1.2-3.3-2.3l-3.5 1.5c.9 2.3 3.1 4.3 6.9 4.3 4 0 7.5-2.4 7.5-8.2V8.5h-3.8v-1zm-1.6 11c-1.8 0-3.3-1.5-3.3-4s1.5-4 3.3-4c1.8 0 3.1 1.5 3.1 4s-1.3 4-3.1 4zM90.8 1.1v22h-4V1.1h4zm-14.7 18.9c-1.3 1.4-3.1 2-5 2-3.6 0-6.8-2.9-6.8-7.8 0-4.6 3.1-7.8 6.6-7.8 3.9 0 6.4 3.2 6.4 7.3v1h-9.1c.2 1.8 1.6 3.1 3.4 3.1 1.5 0 2.5-.7 3-1.7l3.5 1.5zm-6.6-6h5.3c-.2-1.4-1.3-2.6-2.6-2.6-1.5 0-2.5 1.2-2.7 2.6z" fill="#202124"/>
+                </svg>
+                <h3 class="text-2xl font-normal text-gray-900 mb-1" id="googleModalHeader">Sign in</h3>
+                <p class="text-sm text-gray-700 mb-6 font-medium">to continue to EduRecord</p>
+
+                <!-- Step 1: Email Input -->
+                <div id="googleStep1" class="w-full transition-all">
+                    <div class="relative w-full mb-2">
+                        <input type="email" id="googleEmailInput" placeholder="Email or phone" class="block w-full px-4 py-3.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-google focus:border-google transition-colors peer placeholder-transparent">
+                        <label class="absolute left-3.5 -top-2.5 bg-white px-1 text-xs text-google transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-google">Email or phone</label>
+                    </div>
+                    
+                    <!-- Error Message Container -->
+                    <div id="googleErrorMsg" class="hidden flex items-start gap-2 mt-2 text-red-600 text-xs font-bold bg-red-50 p-2.5 rounded-lg border border-red-100">
+                        <i class="ph-bold ph-warning-circle text-base"></i>
+                        <span id="googleErrorText">Couldn't find your Google Account</span>
+                    </div>
+
+                    <div class="mt-10 flex justify-between items-center">
+                        <button type="button" onclick="closeGoogleAuthModal()" class="text-sm text-google font-bold hover:bg-blue-50 px-3 py-2 rounded transition-colors">Cancel</button>
+                        <button type="button" onclick="processGoogleEmail()" class="bg-google hover:bg-blue-600 text-white font-bold text-sm px-6 py-2.5 rounded transition-colors shadow-sm">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Password Input -->
+                <div id="googleStep2" class="w-full hidden transition-all">
+                    <div class="flex items-center justify-center gap-2 border border-gray-200 rounded-full py-1.5 px-4 mb-6 mx-auto w-max cursor-pointer hover:bg-gray-50" onclick="backToGoogleEmail()">
+                        <i class="ph-fill ph-user-circle text-gray-500 text-xl"></i>
+                        <span id="googleDisplayEmail" class="text-sm font-bold text-gray-700">user@example.com</span>
+                        <i class="ph-bold ph-caret-down text-gray-500 text-xs ml-1"></i>
+                    </div>
+
+                    <div class="relative w-full">
+                        <input type="password" id="googlePasswordInput" placeholder="Enter your password" class="block w-full px-4 py-3.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-google focus:border-google transition-colors peer placeholder-transparent">
+                        <label class="absolute left-3.5 -top-2.5 bg-white px-1 text-xs text-google transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-google">Enter your password</label>
+                    </div>
+                    
+                    <div class="mt-10 flex justify-between items-center">
+                        <button type="button" class="text-sm text-google font-bold hover:bg-blue-50 px-3 py-2 rounded transition-colors">Forgot password?</button>
+                        <button type="button" onclick="finalizeGoogleSignIn()" class="bg-google hover:bg-blue-600 text-white font-bold text-sm px-6 py-2.5 rounded transition-colors shadow-sm">Next</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MAIN SECURE APPLICATION (Hidden initially) -->
+    <!-- ========================================== -->
+    <div id="appContainer" class="hidden flex-col min-h-screen w-full">
         
-        <!-- STUDENT VIEW -->
-        <div id="studentView" class="block">
-            <div class="mb-6 flex items-center justify-between">
-                <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Recent Recordings</h2>
-                <div class="flex items-center gap-3">
-                    <!-- Live Indicator -->
-                    <span class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md border border-green-200">
-                        <span class="relative flex h-2 w-2">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
-                        Live Sync
-                    </span>
-                    <span id="resultsCount" class="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full">0 found</span>
-                </div>
-            </div>
+        <!-- Header Section -->
+        <header class="bg-white sticky top-0 z-50 border-b border-gray-200 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between py-4 gap-4">
+                    
+                    <!-- Logo / Title -->
+                    <div class="flex items-center justify-between w-full md:w-auto">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-mustard text-darktext p-2 rounded-xl relative">
+                                <i class="ph ph-video-camera text-2xl"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-xl font-bold leading-tight">EduRecord</h1>
+                                <p class="text-xs text-gray-500 font-medium" id="portalRole">Portal</p>
+                            </div>
+                        </div>
+                    </div>
 
-            <div id="recordingsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Loader -->
-                <div id="initialLoader" class="col-span-full flex flex-col items-center justify-center py-20">
-                    <i class="ph ph-spinner-gap animate-spin text-4xl text-mustard mb-4"></i>
-                    <p class="text-gray-500 font-medium">Connecting to Cloud Database...</p>
-                </div>
-            </div>
+                    <!-- Navigation Links & Logout -->
+                    <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-xl w-full sm:w-auto justify-center md:order-last">
+                        <button onclick="switchView('student')" id="navStudent" class="flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-bold bg-white text-mustardDark shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-mustard/50">Gallery</button>
+                        <button onclick="switchView('admin')" id="navAdmin" class="flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-mustard/50 hidden">Upload</button>
+                        
+                        <!-- Divider -->
+                        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                        
+                        <!-- Logout Button -->
+                        <button onclick="handleLogout()" class="px-3 py-1.5 rounded-lg text-sm font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all flex items-center gap-1">
+                            <i class="ph-bold ph-sign-out"></i> <span class="hidden sm:inline">Logout</span>
+                        </button>
+                    </div>
 
-            <!-- Empty State -->
-            <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center">
-                <div class="bg-gray-100 p-6 rounded-full mb-4">
-                    <i class="ph ph-cloud-slash text-4xl text-gray-400"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-1">No recordings found</h3>
-                <p class="text-gray-500 max-w-sm">No videos match your search, or none have been uploaded yet.</p>
-                <button onclick="clearFilters()" class="mt-4 text-mustardDark font-semibold hover:underline">Clear all filters</button>
-            </div>
-        </div>
+                    <!-- Controls: Search & Filter -->
+                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto md:mr-auto md:ml-6" id="studentControls">
+                        <div class="relative w-full sm:w-64 md:w-80">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="ph ph-magnifying-glass text-gray-400 text-lg"></i>
+                            </div>
+                            <input type="text" id="searchInput" placeholder="Search subject or title..." 
+                                class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors duration-200 sm:text-sm">
+                        </div>
 
-        <!-- ADMIN VIEW (Upload Page) -->
-        <div id="adminView" class="hidden max-w-3xl mx-auto">
-            
-            <!-- Admin Login Wrapper -->
-            <div id="adminLoginWrapper" class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden p-8 max-w-md mx-auto mt-10">
-                <div class="text-center mb-6">
-                    <div class="bg-mustard/20 text-mustardDark p-3 rounded-full inline-block mb-3">
-                        <i class="ph-fill ph-lock-key text-3xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-gray-900">Admin Login</h2>
-                    <p class="text-sm text-gray-500 mt-1">Please enter your credentials to upload</p>
-                </div>
-                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Teacher's Full Name</label>
-                        <input type="text" id="loginName" required placeholder="e.g. CIKGU AMIRAH" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Password</label>
-                        <input type="password" id="loginPassword" required placeholder="••••••••" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm">
-                    </div>
-                    <button type="submit" class="w-full py-3 bg-mustard hover:bg-mustardDark text-white font-bold rounded-xl transition-all shadow-sm focus:ring-2 focus:ring-mustard/50 outline-none mt-2 flex justify-center items-center gap-2">
-                        <span>Unlock Panel</span>
-                        <i class="ph-bold ph-arrow-right"></i>
-                    </button>
-                </form>
-                <div class="mt-5 text-center">
-                    <button type="button" onclick="toggleRegisterMode(true)" class="text-sm text-mustardDark font-bold hover:underline transition-all">NOT IN LIST? REGISTER NOW!</button>
-                </div>
-            </div>
-
-            <!-- Admin Register Wrapper -->
-            <div id="adminRegisterWrapper" class="hidden bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden p-8 max-w-md mx-auto mt-10">
-                <div class="text-center mb-6">
-                    <div class="bg-blue-50 text-blue-600 p-3 rounded-full inline-block mb-3">
-                        <i class="ph-fill ph-user-plus text-3xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-gray-900">Teacher Registration</h2>
-                    <p class="text-sm text-gray-500 mt-1">Create your upload credentials</p>
-                </div>
-                <form onsubmit="handleAdminRegister(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Teacher's Full Name</label>
-                        <input type="text" id="registerName" required placeholder="e.g. CIKGU AMIRAH" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Password</label>
-                        <input type="password" id="registerPassword" required placeholder="Choose a password" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm">
-                    </div>
-                    <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-sm focus:ring-2 focus:ring-blue-500 outline-none mt-2 flex justify-center items-center gap-2">
-                        <span>Register & Unlock</span>
-                        <i class="ph-bold ph-check-circle"></i>
-                    </button>
-                </form>
-                <div class="mt-5 text-center">
-                    <button type="button" onclick="toggleRegisterMode(false)" class="text-sm text-gray-500 hover:text-gray-800 hover:underline transition-all">Already registered? Login here.</button>
-                </div>
-            </div>
-
-            <!-- Admin Upload Wrapper -->
-            <div id="adminUploadWrapper" class="hidden bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <i class="ph-fill ph-cloud-arrow-up text-mustard text-2xl"></i>
-                        <h2 class="text-xl font-bold text-gray-900 tracking-tight">Upload to Platform</h2>
-                    </div>
-                    <button type="button" onclick="handleAdminLogout()" class="text-sm font-bold text-gray-500 hover:text-red-500 flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50">
-                        <i class="ph-bold ph-lock-key"></i> Lock
-                    </button>
-                </div>
-                
-                <form id="uploadForm" onsubmit="handleUpload(event)" class="p-6 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Subject <span class="text-red-500">*</span></label>
-                            <select id="uploadSubject" required class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm font-medium cursor-pointer">
-                                <option value="" disabled selected>Select a subject</option>
-                                <option value="BAHASA MELAYU">Bahasa Melayu</option>
-                                <option value="MATEMATIK">Matematik</option>
-                                <option value="SAINS">Sains</option>
-                                <option value="SEJARAH">Sejarah</option>
-                                <option value="ENGLISH">English</option>
-                                <option value="PENDIDIKAN ISLAM">Pendidikan Islam</option>
-                                <option value="OTHER">Other</option>
+                        <div class="relative w-full sm:w-48">
+                            <select id="subjectFilter" 
+                                class="appearance-none block w-full pl-3 pr-10 py-2.5 border border-gray-300 rounded-xl leading-5 bg-white focus:outline-none focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors duration-200 sm:text-sm font-medium cursor-pointer">
+                                <option value="ALL">All Subjects</option>
                             </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Teacher Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="uploadTeacher" required placeholder="e.g. CIKGU AMIRAH" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Lesson Title <span class="text-red-500">*</span></label>
-                        <input type="text" id="uploadTitle" required placeholder="e.g. KARANGAN BERFORMAT" class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Date <span class="text-red-500">*</span></label>
-                            <input type="date" id="uploadDate" required class="block w-full px-4 py-2.5 border border-gray-300 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm cursor-pointer">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Recording File <span class="text-red-500">*</span></label>
-                            <input type="file" id="uploadFile" accept="video/*, audio/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-mustard/10 file:text-mustardDark hover:file:bg-mustard/20 file:transition-colors file:cursor-pointer border border-gray-300 rounded-xl bg-gray-50 focus:outline-none cursor-pointer">
-                            <p class="text-xs text-gray-400 mt-1">Max size: 600GB per file. Limit: 60 recordings.</p>
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="ph ph-caret-down text-gray-500"></i>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-end border-t border-gray-100 items-center">
-                        <button type="button" onclick="window.wipeLocalData()" class="text-sm font-bold text-red-500 hover:text-red-700 transition-colors mr-auto flex items-center gap-1">
-                            <i class="ph-bold ph-trash"></i> Clear Local Data
-                        </button>
-                        <button type="button" onclick="document.getElementById('uploadForm').reset()" class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 font-bold hover:bg-gray-50 transition-colors outline-none">
-                            Clear Form
-                        </button>
-                        <button type="submit" id="submitBtn" class="px-8 py-2.5 bg-mustard hover:bg-mustardDark text-white font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 focus:ring-2 focus:ring-mustard/50 outline-none w-full sm:w-auto disabled:opacity-70 disabled:cursor-not-allowed">
-                            <i class="ph-bold ph-cloud-arrow-up" id="submitIcon"></i>
-                            <span id="submitText">Upload</span>
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </header>
 
-        <!-- Toast Notification -->
-        <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 z-50 pointer-events-none">
-            <i class="ph-fill ph-check-circle text-green-400 text-xl" id="toastIcon"></i>
-            <span id="toastMessage" class="font-medium text-sm">Action successful!</span>
-        </div>
-
-    </main>
-
-    <!-- Media Player Modal (Compact Audio/Voice Playback) -->
-    <div id="playerModal" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-3xl w-full max-w-lg flex flex-col shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden" id="playerModalContent">
+        <!-- Main Content -->
+        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full relative">
             
-            <!-- Header & Title Area -->
+            <!-- STUDENT VIEW -->
+            <div id="studentView" class="block">
+                <div class="mb-6 flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Lesson Gallery</h2>
+                    <div class="flex items-center gap-3">
+                        <span id="resultsCount" class="text-sm font-bold text-mustardDark bg-mustard/10 px-3 py-1 rounded-full border border-mustard/20">0 found</span>
+                    </div>
+                </div>
+
+                <div id="recordingsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Loader -->
+                    <div id="initialLoader" class="col-span-full flex flex-col items-center justify-center py-20">
+                        <i class="ph ph-spinner-gap animate-spin text-4xl text-mustard mb-4"></i>
+                        <p class="text-gray-500 font-medium">Loading secure database...</p>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center">
+                    <div class="bg-gray-100 p-6 rounded-full mb-4">
+                        <i class="ph ph-video-camera-slash text-4xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">No recordings found</h3>
+                    <p class="text-gray-500 max-w-sm">No videos match your search, or none have been published yet.</p>
+                    <button onclick="clearFilters()" class="mt-4 text-mustardDark font-semibold hover:underline">Clear all filters</button>
+                </div>
+            </div>
+
+            <!-- ADMIN VIEW (Upload Page) -->
+            <div id="adminView" class="hidden max-w-3xl mx-auto">
+                <div class="bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden">
+                    <div class="px-6 py-5 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <i class="ph-fill ph-cloud-arrow-up text-mustard text-2xl"></i>
+                            <h2 class="text-xl font-bold text-gray-900 tracking-tight">Publish New Lesson</h2>
+                        </div>
+                        <span class="text-xs font-bold bg-mustard/20 text-mustardDark px-3 py-1 rounded-lg uppercase tracking-wider">Teacher Mode</span>
+                    </div>
+                    
+                    <form id="uploadForm" onsubmit="handleUpload(event)" class="p-6 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1.5">Subject <span class="text-red-500">*</span></label>
+                                <select id="uploadSubject" required class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm font-medium cursor-pointer">
+                                    <option value="" disabled selected>Select a subject</option>
+                                    <option value="BAHASA MELAYU">Bahasa Melayu</option>
+                                    <option value="MATEMATIK">Matematik</option>
+                                    <option value="SAINS">Sains</option>
+                                    <option value="SEJARAH">Sejarah</option>
+                                    <option value="ENGLISH">English</option>
+                                    <option value="PENDIDIKAN ISLAM">Pendidikan Islam</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1.5">Teacher Name</label>
+                                <input type="text" id="uploadTeacher" readonly class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-100 text-gray-500 font-bold transition-colors text-sm uppercase cursor-not-allowed">
+                                <p class="text-xs text-gray-400 mt-1">Auto-filled from DELIMa ID</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Lesson Title <span class="text-red-500">*</span></label>
+                            <input type="text" id="uploadTitle" required placeholder="e.g. KARANGAN BERFORMAT" class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase font-medium">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1.5">Date <span class="text-red-500">*</span></label>
+                                <input type="date" id="uploadDate" required class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm cursor-pointer font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1.5">Media File (Audio/Video) <span class="text-red-500">*</span></label>
+                                <input type="file" id="uploadFile" accept="video/*, audio/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-mustard/10 file:text-mustardDark hover:file:bg-mustard/20 file:transition-colors file:cursor-pointer border border-gray-200 rounded-xl bg-gray-50 focus:outline-none cursor-pointer">
+                                <p class="text-xs text-gray-400 mt-1">Supports massive files. Seamless local storage.</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-end border-t border-gray-100 items-center">
+                            <button type="button" onclick="window.wipeLocalData()" class="text-sm font-bold text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors mr-auto flex items-center gap-1.5">
+                                <i class="ph-bold ph-trash"></i> Format Drive
+                            </button>
+                            <button type="button" onclick="document.getElementById('uploadForm').reset()" class="px-6 py-3 border border-gray-200 rounded-xl text-gray-700 font-bold hover:bg-gray-50 transition-colors outline-none">
+                                Clear
+                            </button>
+                            <button type="submit" id="submitBtn" class="px-8 py-3 bg-mustard hover:bg-mustardDark text-white font-black rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 focus:ring-2 focus:ring-mustard/50 outline-none w-full sm:w-auto disabled:opacity-70 disabled:cursor-not-allowed">
+                                <i class="ph-bold ph-cloud-arrow-up" id="submitIcon"></i>
+                                <span id="submitText">Publish Lesson</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Toast Notification -->
+            <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 transition-all duration-300 z-[200] pointer-events-none">
+                <i class="ph-fill ph-check-circle text-green-400 text-xl" id="toastIcon"></i>
+                <span id="toastMessage" class="font-medium text-sm">Action successful!</span>
+            </div>
+
+        </main>
+    </div> <!-- /appContainer -->
+
+
+    <!-- ========================================== -->
+    <!-- MODALS -->
+    <!-- ========================================== -->
+
+    <!-- Media Player Modal -->
+    <div id="playerModal" class="fixed inset-0 z-[110] hidden items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl w-full max-w-lg flex flex-col shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden" id="playerModalContent">
             <div class="flex items-start justify-between p-6 border-b border-gray-100">
                 <div class="flex items-center gap-4">
                     <div class="bg-mustard/20 text-mustardDark p-3 rounded-2xl flex-shrink-0 relative overflow-hidden">
-                        <!-- Playing animation dots -->
                         <span class="absolute top-1 right-1 flex h-2 w-2">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-mustardDark opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-mustard text-mustardDark"></span>
@@ -308,10 +351,7 @@
                     <i class="ph ph-x text-xl"></i>
                 </button>
             </div>
-
-            <!-- Seeking Bar / Player Controls -->
             <div class="p-6 bg-gray-50 w-full flex flex-col justify-center items-center">
-                <!-- Audio tag takes up minimal vertical space but works for both audio and video files -->
                 <audio id="mediaPlayer" controls class="w-full h-12 outline-none rounded-xl">
                     Your browser does not support the audio tag.
                 </audio>
@@ -320,67 +360,187 @@
     </div>
 
     <!-- AI Study Guide Modal -->
-    <div id="aiModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" id="aiModalContent">
+    <div id="aiModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden" id="aiModalContent">
             <div class="flex items-center justify-between p-6 border-b border-gray-100">
                 <div class="flex items-center gap-3">
-                    <div class="bg-mustard/20 text-mustardDark p-2 rounded-xl">
-                        <span class="text-xl">✨</span>
+                    <div class="bg-blue-50 text-blue-600 p-3 rounded-2xl">
+                        <span class="text-2xl">✨</span>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-gray-900" id="aiModalTitle">AI Study Guide</h3>
-                        <p class="text-sm text-gray-500" id="aiModalSubtitle">Generating insights...</p>
+                        <h3 class="text-xl font-black text-gray-900" id="aiModalTitle">AI Study Guide</h3>
+                        <p class="text-sm text-gray-500 font-medium" id="aiModalSubtitle">Generating insights...</p>
                     </div>
                 </div>
-                <button onclick="closeAIModal()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-colors">
+                <button onclick="closeAIModal()" class="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2.5 rounded-full transition-colors focus:outline-none shrink-0 ml-2">
                     <i class="ph ph-x text-xl"></i>
                 </button>
             </div>
-            
             <div class="p-6 overflow-y-auto flex-grow prose prose-mustard max-w-none text-gray-700" id="aiModalBody">
-                <!-- Content injected here -->
             </div>
-            
-            <div class="p-6 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-end">
-                <button onclick="closeAIModal()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-xl transition-colors">
+            <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end">
+                <button onclick="closeAIModal()" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-xl transition-colors">
                     Close Guide
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase Implementation (Module) -->
+    <!-- JavaScript Application Logic -->
     <script type="module">
-        // Firebase SDK Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // ==========================================
-        // 1. APPLICATION STATE & GLOBAL VARIABLES
+        // 1. STATE & GLOBAL VARIABLES
         // ==========================================
         let recordingsData = [];
         let currentUser = null;
-        let isAdminAuthenticated = false;
-        let isCloudEnabled = false; // Tracks if we are in Sandbox or GitHub
-        let registeredTeachers = JSON.parse(localStorage.getItem('registeredTeachers')) || [];
-        const apiKey = ""; // Gemini API Key
+        let isCloudEnabled = false; 
+        
+        let activeUserSession = null; 
 
-        // DOM Elements
-        const grid = document.getElementById('recordingsGrid');
-        const initialLoader = document.getElementById('initialLoader');
-        const searchInput = document.getElementById('searchInput');
-        const subjectFilter = document.getElementById('subjectFilter');
-        const emptyState = document.getElementById('emptyState');
-        const resultsCount = document.getElementById('resultsCount');
-        const submitBtn = document.getElementById('submitBtn');
-        const submitText = document.getElementById('submitText');
-        const submitIcon = document.getElementById('submitIcon');
-        const toast = document.getElementById('toast');
+        const apiKey = ""; // Gemini API Key
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-record-system';
+        const DB_NAME = 'EduRecordingsDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'recordings';
 
         // ==========================================
-        // 2. UI & INTERACTION FUNCTIONS (Guaranteed to work)
+        // 2. SIMULATED GOOGLE AUTHENTICATION LOGIC
+        // ==========================================
+        
+        // Open Google Sign-In Modal
+        window.openGoogleAuthModal = function() {
+            const modal = document.getElementById('googleAuthModal');
+            const content = document.getElementById('googleAuthContent');
+            
+            // Reset to step 1
+            document.getElementById('googleStep1').classList.remove('hidden');
+            document.getElementById('googleStep2').classList.add('hidden');
+            document.getElementById('googleEmailInput').value = '';
+            document.getElementById('googlePasswordInput').value = '';
+            hideGoogleError();
+
+            modal.classList.replace('hidden', 'flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.replace('scale-95', 'scale-100');
+            }, 10);
+        };
+
+        window.closeGoogleAuthModal = function() {
+            const modal = document.getElementById('googleAuthModal');
+            const content = document.getElementById('googleAuthContent');
+            
+            modal.classList.add('opacity-0');
+            content.classList.replace('scale-100', 'scale-95');
+            setTimeout(() => modal.classList.replace('flex', 'hidden'), 300);
+        };
+
+        function showGoogleError(message) {
+            const errBox = document.getElementById('googleErrorMsg');
+            document.getElementById('googleErrorText').textContent = message;
+            errBox.classList.remove('hidden');
+            document.getElementById('googleEmailInput').classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        }
+
+        function hideGoogleError() {
+            document.getElementById('googleErrorMsg').classList.add('hidden');
+            document.getElementById('googleEmailInput').classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        }
+
+        // Process Email Input (Domain Validation)
+        window.processGoogleEmail = function() {
+            const email = document.getElementById('googleEmailInput').value.trim().toLowerCase();
+            hideGoogleError();
+
+            if (!email) {
+                showGoogleError("Enter an email or phone number");
+                return;
+            }
+
+            // Strictly reject gmail or any domain other than moe-dl.edu.my
+            if (email.endsWith('@gmail.com') || !email.endsWith('@moe-dl.edu.my')) {
+                showGoogleError("Access Denied. Only @moe-dl.edu.my accounts are authorized for this portal.");
+                return;
+            }
+
+            // Optional check for g- or m- prefix
+            const isTeacher = email.startsWith('g-');
+            const isStudent = email.startsWith('m-');
+            
+            if (!isTeacher && !isStudent) {
+                showGoogleError("Invalid DELIMa format. Must start with g- or m-.");
+                return;
+            }
+
+            // Valid! Move to Password step
+            document.getElementById('googleDisplayEmail').textContent = email;
+            document.getElementById('googleStep1').classList.add('hidden');
+            document.getElementById('googleStep2').classList.remove('hidden');
+        };
+
+        window.backToGoogleEmail = function() {
+            document.getElementById('googleStep2').classList.add('hidden');
+            document.getElementById('googleStep1').classList.remove('hidden');
+            document.getElementById('googlePasswordInput').value = '';
+        };
+
+        // Finalize Login (Simulate Auth Success)
+        window.finalizeGoogleSignIn = function() {
+            const email = document.getElementById('googleEmailInput').value.trim().toLowerCase();
+            const password = document.getElementById('googlePasswordInput').value;
+
+            if (!password) return;
+
+            const role = email.startsWith('g-') ? 'TEACHER' : 'STUDENT';
+            
+            // Extract a display name from the ID (e.g. g-12345678 -> G-12345678)
+            const generatedName = email.split('@')[0].toUpperCase();
+
+            closeGoogleAuthModal();
+            unlockApplication(email, generatedName, role);
+            showToast(`Signed in securely via Google.`);
+        };
+
+        // Complete Logout
+        window.handleLogout = function() {
+            activeUserSession = null;
+            document.getElementById('appContainer').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('flex');
+            document.getElementById('globalAuthWrapper').classList.remove('hidden');
+            showToast('Signed out of Google Workspace.');
+        };
+
+        function unlockApplication(email, name, role) {
+            activeUserSession = { email, name, role };
+            
+            document.getElementById('globalAuthWrapper').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('flex');
+
+            const roleText = isCloudEnabled ? `DELIMa Portal (Live)` : `DELIMa Portal (Local)`;
+            document.getElementById('portalRole').textContent = `${roleText} - ${role}`;
+            
+            const navAdminBtn = document.getElementById('navAdmin');
+            
+            if (role === 'TEACHER') {
+                navAdminBtn.classList.remove('hidden');
+                document.getElementById('uploadTeacher').value = name; // Pre-fill their identity
+            } else {
+                navAdminBtn.classList.add('hidden');
+            }
+
+            window.switchView('student');
+        }
+
+
+        // ==========================================
+        // 3. UI VIEW & FILTER LOGIC
         // ==========================================
         window.switchView = function(view) {
             const sv = document.getElementById('studentView');
@@ -388,102 +548,32 @@
             const ctrl = document.getElementById('studentControls');
             const navS = document.getElementById('navStudent');
             const navA = document.getElementById('navAdmin');
-            const role = document.getElementById('portalRole');
 
             if (view === 'student') {
                 sv.classList.replace('hidden', 'block');
                 av.classList.replace('block', 'hidden');
                 ctrl.classList.replace('hidden', 'flex');
-                role.textContent = isCloudEnabled ? 'Student Portal (Live Cloud)' : 'Student Portal (Local Mode)';
+                
                 navS.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-bold bg-white text-mustardDark shadow-sm transition-all";
-                navA.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 transition-all bg-transparent";
+                navA.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 transition-all bg-transparent " + (activeUserSession?.role === 'TEACHER' ? '' : 'hidden');
+                
                 window.handleFilter();
-            } else {
+            } else if (view === 'admin' && activeUserSession?.role === 'TEACHER') {
                 av.classList.replace('hidden', 'block');
                 sv.classList.replace('block', 'hidden');
                 ctrl.classList.replace('flex', 'hidden');
-                role.textContent = 'Teacher / Admin Portal';
+                
                 navA.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-bold bg-white text-mustardDark shadow-sm transition-all";
                 navS.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 transition-all bg-transparent";
-                
-                if (isAdminAuthenticated) {
-                    document.getElementById('adminUploadWrapper').classList.remove('hidden');
-                    document.getElementById('adminLoginWrapper').classList.add('hidden');
-                    document.getElementById('adminRegisterWrapper').classList.add('hidden');
-                } else {
-                    document.getElementById('adminUploadWrapper').classList.add('hidden');
-                    document.getElementById('adminLoginWrapper').classList.remove('hidden');
-                    document.getElementById('adminRegisterWrapper').classList.add('hidden');
-                }
             }
-        };
-
-        window.toggleRegisterMode = function(showRegister) {
-            if (showRegister) {
-                document.getElementById('adminLoginWrapper').classList.add('hidden');
-                document.getElementById('adminRegisterWrapper').classList.remove('hidden');
-            } else {
-                document.getElementById('adminRegisterWrapper').classList.add('hidden');
-                document.getElementById('adminLoginWrapper').classList.remove('hidden');
-            }
-        };
-
-        window.handleAdminRegister = function(e) {
-            e.preventDefault();
-            const name = document.getElementById('registerName').value.trim().toUpperCase();
-            const pass = document.getElementById('registerPassword').value;
-
-            if (registeredTeachers.find(t => t.name === name)) {
-                return showToast('This Teacher Name is already registered. Please login.', true);
-            }
-
-            registeredTeachers.push({ name: name, pass: pass });
-            localStorage.setItem('registeredTeachers', JSON.stringify(registeredTeachers));
-
-            isAdminAuthenticated = true;
-            document.getElementById('uploadTeacher').value = name;
-            
-            document.getElementById('adminRegisterWrapper').classList.add('hidden');
-            document.getElementById('adminUploadWrapper').classList.remove('hidden');
-            document.getElementById('registerName').value = '';
-            document.getElementById('registerPassword').value = '';
-            
-            showToast('Registration successful! Panel unlocked.');
-        };
-
-        window.handleAdminLogin = function(e) {
-            e.preventDefault();
-            const name = document.getElementById('loginName').value.trim().toUpperCase();
-            const pass = document.getElementById('loginPassword').value;
-
-            const matchedTeacher = registeredTeachers.find(t => t.name === name && t.pass === pass);
-
-            if (matchedTeacher || (name === 'ADMIN' && pass === 'admin123')) { 
-                isAdminAuthenticated = true;
-                document.getElementById('uploadTeacher').value = name;
-                
-                document.getElementById('adminLoginWrapper').classList.add('hidden');
-                document.getElementById('adminRegisterWrapper').classList.add('hidden');
-                document.getElementById('adminUploadWrapper').classList.remove('hidden');
-                
-                showToast('Admin unlocked successfully!');
-            } else {
-                showToast('Incorrect name or password.', true);
-            }
-        };
-
-        window.handleAdminLogout = function() {
-            isAdminAuthenticated = false;
-            document.getElementById('loginPassword').value = '';
-            document.getElementById('adminUploadWrapper').classList.add('hidden');
-            document.getElementById('adminRegisterWrapper').classList.add('hidden');
-            document.getElementById('adminLoginWrapper').classList.remove('hidden');
-            showToast('Admin panel locked.');
         };
 
         window.handleFilter = function() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const selectedSubject = subjectFilter.value;
+            const searchInput = document.getElementById('searchInput');
+            const subjectFilter = document.getElementById('subjectFilter');
+            
+            const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            const selectedSubject = subjectFilter ? subjectFilter.value : 'ALL';
 
             const filteredData = recordingsData.filter(item => {
                 const matchesSearch = item.subject.toLowerCase().includes(searchTerm) || 
@@ -496,12 +586,13 @@
         };
 
         window.clearFilters = function() {
-            searchInput.value = '';
-            subjectFilter.value = 'ALL';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('subjectFilter').value = 'ALL';
             window.handleFilter();
         };
 
         function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
             document.getElementById('toastMessage').textContent = message;
             const icon = document.getElementById('toastIcon');
             icon.className = isError ? "ph-fill ph-warning-circle text-red-400 text-xl" : "ph-fill ph-check-circle text-green-400 text-xl";
@@ -510,6 +601,7 @@
         }
 
         function populateSubjectFilter(data) {
+            const subjectFilter = document.getElementById('subjectFilter');
             const subjects = [...new Set(data.map(item => item.subject))].sort();
             subjectFilter.innerHTML = '<option value="ALL">All Subjects</option>';
             subjects.forEach(subject => {
@@ -521,6 +613,10 @@
         }
 
         function renderCards(data) {
+            const grid = document.getElementById('recordingsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const resultsCount = document.getElementById('resultsCount');
+
             grid.innerHTML = '';
             if (data.length === 0) {
                 grid.classList.add('hidden');
@@ -535,29 +631,28 @@
 
             data.forEach((rec, index) => {
                 const delay = index * 0.05;
-                // Use the custom modal instead of opening a new tab
                 const safeTitle = rec.title.replace(/'/g, "\\'");
                 const playAction = rec.fileUrl ? `window.playMedia('${rec.fileUrl}', '${safeTitle}')` : `alert('File missing.')`;
 
                 const cardHTML = `
-                    <article class="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col h-full shadow-sm hover:shadow-xl hover:border-mustard/50 transition-all duration-300 transform hover:-translate-y-1.5 relative overflow-hidden group card-enter" style="animation-delay: ${delay}s;">
+                    <article class="bg-white border border-gray-200 rounded-3xl p-6 flex flex-col h-full shadow-sm hover:shadow-xl hover:border-mustard/50 transition-all duration-300 transform hover:-translate-y-1.5 relative overflow-hidden group card-enter" style="animation-delay: ${delay}s;">
                         <div class="relative z-10 flex-grow flex flex-col">
                             <div class="flex items-center gap-1.5 text-xs font-extrabold tracking-widest uppercase mb-3 text-mustardDark">
                                 <i class="ph-fill ph-calendar-blank"></i> ${rec.dateStr}
                             </div>
                             <h3 class="text-2xl font-black mb-1.5 leading-tight tracking-tight text-gray-900 line-clamp-2">${rec.subject}</h3>
                             <p class="text-base font-semibold mb-4 text-gray-600 line-clamp-2 flex-grow">${rec.title}</p>
-                            <div class="text-sm font-medium mb-6 flex items-center gap-2 text-gray-600 bg-gray-50 border border-gray-100 self-start px-2.5 py-1 rounded-md">
-                                <i class="ph-fill ph-user-circle text-lg text-mustard"></i> 
+                            <div class="text-xs font-bold uppercase tracking-wider mb-6 flex items-center gap-2 text-gray-700 bg-gray-50 border border-gray-100 self-start px-3 py-1.5 rounded-lg">
+                                <i class="ph-fill ph-chalkboard-teacher text-lg text-mustard"></i> 
                                 <span>${rec.teacher}</span>
                             </div>
                         </div>
-                        <div class="mt-auto relative z-10 flex flex-col sm:flex-row gap-2">
-                            <button onclick="${playAction}" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.98] outline-none">
-                                <i class="ph-fill ph-play-circle text-xl text-gray-700"></i> <span>Play</span>
+                        <div class="mt-auto relative z-10 flex flex-col sm:flex-row gap-2 pt-2 border-t border-gray-50">
+                            <button onclick="${playAction}" class="flex-1 bg-gray-100 hover:bg-mustard hover:text-white text-gray-800 font-bold py-3.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] outline-none group/play">
+                                <i class="ph-fill ph-play-circle text-2xl group-hover/play:scale-110 transition-transform"></i> <span>Play</span>
                             </button>
-                            <button onclick="window.generateAIStudyGuide('${rec.id}')" class="flex-1 bg-mustard hover:bg-mustardDark text-white font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.98] outline-none shadow-sm group/btn">
-                                <span class="text-lg group-hover/btn:scale-110 transition-transform">✨</span> <span>AI Guide</span>
+                            <button onclick="window.generateAIStudyGuide('${rec.id}')" class="w-14 sm:w-16 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white font-bold py-3.5 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-[0.98] outline-none shadow-sm group/btn shrink-0">
+                                <span class="text-xl group-hover/btn:scale-110 transition-transform">✨</span>
                             </button>
                         </div>
                     </article>
@@ -566,7 +661,9 @@
             });
         }
 
-        // --- NEW: IN-BROWSER MEDIA PLAYER ---
+        // ==========================================
+        // 4. MODAL LOGIC (Play & AI)
+        // ==========================================
         window.playMedia = function(url, title) {
             const modal = document.getElementById('playerModal');
             const content = document.getElementById('playerModalContent');
@@ -579,7 +676,7 @@
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
                 content.classList.replace('scale-95', 'scale-100');
-                player.play().catch(e => console.log("Auto-play prevented by browser policy", e));
+                player.play().catch(e => console.log("Auto-play prevented", e));
             }, 10);
         };
 
@@ -594,11 +691,10 @@
             
             setTimeout(() => {
                 modal.classList.replace('flex', 'hidden');
-                player.src = ""; // Clear source to free memory
+                player.src = "";
             }, 300);
         };
 
-        // --- AI MODAL LOGIC ---
         window.generateAIStudyGuide = async function(id) {
             const recording = recordingsData.find(r => r.id === id || r.id == id);
             if (!recording) return;
@@ -610,7 +706,7 @@
             document.getElementById('aiModalTitle').textContent = `${recording.subject} Guide`;
             document.getElementById('aiModalSubtitle').textContent = `Analyzing: ${recording.title}`;
             
-            aiModalBody.innerHTML = `<div class="flex flex-col items-center justify-center py-10 gap-4"><i class="ph ph-spinner-gap animate-spin text-4xl text-mustard"></i><p class="text-gray-500 font-medium animate-pulse">Our AI is generating a summary and quiz questions...</p></div>`;
+            aiModalBody.innerHTML = `<div class="flex flex-col items-center justify-center py-10 gap-4"><i class="ph ph-spinner-gap animate-spin text-4xl text-blue-500"></i><p class="text-gray-500 font-medium animate-pulse">Our AI is generating a summary and quiz questions...</p></div>`;
 
             aiModal.classList.replace('hidden', 'flex');
             setTimeout(() => {
@@ -643,17 +739,10 @@
 
 
         // ==========================================
-        // 3. SECURE CLOUD & LOCAL DATABASE LOGIC
+        // 5. SECURE DATABASE LOGIC (Local IndexedDB & Cloud)
         // ==========================================
-        
         let app, auth, db, storage;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-record-system';
-
-        // Native IndexedDB Wrapper for handling massive local files natively
-        const DB_NAME = 'EduRecordingsDB';
-        const DB_VERSION = 1;
-        const STORE_NAME = 'recordings';
-
+        
         function getDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -668,7 +757,6 @@
             });
         }
 
-        // Detect if we have Firebase config (Gemini Environment) or empty (GitHub Pages)
         function initializeDatabaseEnv() {
             const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
             if (configStr) {
@@ -680,24 +768,17 @@
                         db = getFirestore(app);
                         try { storage = getStorage(app); } catch(e) {}
                         isCloudEnabled = true;
-                        document.getElementById('portalRole').textContent = 'Student Portal (Live Cloud)';
                         return;
                     }
                 } catch(e) { console.error("Config parse failed"); }
             }
             
-            // Fallback for GitHub Pages
-            console.warn("No Cloud Config detected. Running in Local Browser Mode.");
             isCloudEnabled = false;
-            document.getElementById('portalRole').textContent = 'Student Portal (Local Mode)';
-            
-            // Immediately load local data to stop the spinner
             loadLocalData();
         }
 
         async function initAuth() {
-            if (!isCloudEnabled) return; // Skip auth if local mode
-
+            if (!isCloudEnabled) return;
             try {
                 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
                 if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
@@ -708,30 +789,24 @@
                     if (user) listenToCloudRecordings();
                 });
             } catch (error) {
-                console.error("Auth Error, falling back to local:", error);
                 isCloudEnabled = false;
-                loadLocalData(); // Fallback to local if connection fails
+                loadLocalData();
             }
         }
 
         async function loadLocalData() {
             try {
-                const db = await getDB();
-                const tx = db.transaction(STORE_NAME, 'readonly');
+                const database = await getDB();
+                const tx = database.transaction(STORE_NAME, 'readonly');
                 const store = tx.objectStore(STORE_NAME);
                 const request = store.getAll();
 
                 request.onsuccess = () => {
                     let stored = request.result || [];
-                    
-                    // Remove legacy w3schools videos
                     stored = stored.filter(rec => !(rec.fileUrl && typeof rec.fileUrl === 'string' && rec.fileUrl.includes('w3schools')));
 
-                    // Generate Object URLs for raw Blobs (Supports Huge Files)
                     recordingsData = stored.map(rec => {
-                        if (rec.fileBlob) {
-                            rec.fileUrl = URL.createObjectURL(rec.fileBlob);
-                        }
+                        if (rec.fileBlob) rec.fileUrl = URL.createObjectURL(rec.fileBlob);
                         return rec;
                     });
 
@@ -741,7 +816,6 @@
                     window.handleFilter();
                 };
             } catch (e) {
-                console.error("Local DB load error", e);
                 if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
             }
         }
@@ -754,62 +828,52 @@
                 let newData = [];
                 snapshot.forEach(doc => newData.push({ id: doc.id, ...doc.data() }));
                 
-                // Auto-delete the old dummy "Rabbit" videos from previous versions
                 newData = newData.filter(rec => rec.fileUrl && !rec.fileUrl.includes('w3schools'));
-
                 recordingsData = newData.sort((a, b) => new Date(b.sortDate) - new Date(a.sortDate));
+                
                 if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
                 populateSubjectFilter(recordingsData);
                 window.handleFilter();
             }, (error) => {
-                console.error("Firestore Listen Error:", error);
                 if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
-                showToast("Error loading cloud recordings.", true);
             });
         }
 
-        // --- UPLOAD LOGIC ---
         window.wipeLocalData = async function() {
-            if (confirm("Are you sure you want to delete all locally saved recordings? This frees up disk space.")) {
+            if (confirm("Format Local Drive? All local videos will be deleted.")) {
                 try {
-                    const db = await getDB();
-                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const database = await getDB();
+                    const tx = database.transaction(STORE_NAME, 'readwrite');
                     tx.objectStore(STORE_NAME).clear();
                     tx.oncomplete = () => {
                         recordingsData = [];
                         window.handleFilter();
-                        showToast("Local database wiped clean!");
+                        showToast("Local database wiped.");
                     };
-                } catch(e) {
-                    console.error(e);
-                }
+                } catch(e) {}
             }
         };
 
         window.handleUpload = async function(e) {
             e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitIcon = document.getElementById('submitIcon');
 
             submitBtn.disabled = true;
             submitText.textContent = "Processing...";
             submitIcon.className = "ph-bold ph-spinner animate-spin";
 
-            const MAX_RECORDINGS = 60;
-            const MAX_FILE_SIZE = 600 * 1024 * 1024 * 1024; // 600 GB limit 
-
             try {
-                if (recordingsData.length >= MAX_RECORDINGS) {
-                    throw new Error(`Maximum limit reached (${MAX_RECORDINGS} recordings). Please delete some data.`);
-                }
+                if (recordingsData.length >= 60) throw new Error(`Limit reached (60 recordings).`);
 
                 let subject = document.getElementById('uploadSubject').value || "OTHER";
-                const teacher = document.getElementById('uploadTeacher').value.toUpperCase();
+                const teacher = document.getElementById('uploadTeacher').value;
                 const title = document.getElementById('uploadTitle').value.toUpperCase();
                 const dateInput = document.getElementById('uploadDate').value;
                 const file = document.getElementById('uploadFile').files[0];
 
-                if (file && file.size > MAX_FILE_SIZE) {
-                    throw new Error("File exceeds the 600GB maximum size limit.");
-                }
+                if (file && file.size > 600 * 1024 * 1024 * 1024) throw new Error("File exceeds 600GB limit.");
 
                 const d = new Date(dateInput);
                 const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
@@ -817,92 +881,68 @@
                 
                 let downloadURL = ""; 
 
-                // Check environment for upload
                 if (isCloudEnabled) {
                     if (!currentUser) throw new Error("Not connected to cloud.");
-                    
                     if (storage && file) {
                         try {
                             const sanitizedName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
                             const storageRef = ref(storage, `artifacts/${appId}/public/data/${Date.now()}_${sanitizedName}`);
                             const snapshot = await uploadBytes(storageRef, file);
                             downloadURL = await getDownloadURL(snapshot.ref);
-                        } catch (e) {
-                            if (e.message && e.message.includes("unauthorized")) {
-                                throw new Error("Firebase blocked upload. Update your Firebase Storage Rules to allow writes.");
-                            }
-                            throw new Error("Cloud storage upload failed.");
-                        }
+                        } catch (e) { throw new Error("Cloud upload blocked."); }
                     }
-
-                    submitText.textContent = "Saving Database...";
                     const recordingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'recordings');
-                    await addDoc(recordingsRef, {
-                        subject, teacher, title, sortDate: dateInput, dateStr: displayDateStr, fileUrl: downloadURL, createdAt: Date.now()
-                    });
-
+                    await addDoc(recordingsRef, { subject, teacher, title, sortDate: dateInput, dateStr: displayDateStr, fileUrl: downloadURL, createdAt: Date.now() });
                 } else {
-                    // Local Database Mode (IndexedDB)
                     submitText.textContent = "Saving locally...";
-
                     const newRecord = {
                         id: Date.now().toString(),
-                        subject, teacher, title, sortDate: dateInput, dateStr: displayDateStr, 
-                        createdAt: Date.now(),
-                        fileBlob: file // Native Blob storage prevents browser crash!
+                        subject, teacher, title, sortDate: dateInput, dateStr: displayDateStr, createdAt: Date.now(), fileBlob: file
                     };
-
                     const database = await getDB();
                     await new Promise((resolve, reject) => {
                         const tx = database.transaction(STORE_NAME, 'readwrite');
                         const store = tx.objectStore(STORE_NAME);
                         store.put(newRecord);
                         tx.oncomplete = resolve;
-                        tx.onerror = () => reject(new Error("Disk full or database error."));
+                        tx.onerror = () => reject(new Error("Disk error."));
                     });
-                    
-                    await loadLocalData(); // Refresh UI
+                    await loadLocalData();
                 }
 
-                showToast('Recording published successfully!');
+                showToast('Lesson published successfully!');
                 document.getElementById('uploadForm').reset();
                 document.getElementById('uploadDate').valueAsDate = new Date();
+                document.getElementById('uploadTeacher').value = activeUserSession.name; // Keep name filled
 
             } catch (error) {
-                console.error("Upload failed:", error);
-                showToast(error.message || 'Error uploading. Check console.', true);
+                showToast(error.message || 'Upload error.', true);
             } finally {
                 submitBtn.disabled = false;
-                submitText.textContent = "Upload";
+                submitText.textContent = "Publish Lesson";
                 submitIcon.className = "ph-bold ph-cloud-arrow-up";
             }
         };
 
         // ==========================================
-        // 4. INIT SCRIPT ON LOAD (With Failsafes)
+        // 6. INITIALIZATION 
         // ==========================================
         window.addEventListener('load', () => {
             document.getElementById('uploadDate').valueAsDate = new Date();
-            searchInput.addEventListener('input', window.handleFilter);
-            subjectFilter.addEventListener('change', window.handleFilter);
-
-            // Safely Start App
-            try {
-                initializeDatabaseEnv();
-                initAuth();
-            } catch (e) {
-                console.error("Fatal initialization error:", e);
-                if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
-            }
-
-            // Absolute Failsafe: Force loader to disappear after 3 seconds no matter what happens
+            
+            // Failsafe to stop loader inside Student View
             setTimeout(() => {
                 const loader = document.getElementById('initialLoader');
                 if (loader) {
                     loader.remove();
-                    window.handleFilter(); // Force UI to show empty state
+                    if(activeUserSession) window.handleFilter(); 
                 }
             }, 3000);
+
+            try {
+                initializeDatabaseEnv();
+                initAuth();
+            } catch (e) { console.error(e); }
         });
 
     </script>

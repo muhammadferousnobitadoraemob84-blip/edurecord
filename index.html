@@ -478,6 +478,12 @@
                 return;
             }
 
+            // Developer restriction: Only allow specific student account
+            if (isStudent && email !== 'm-11137419@moe-dl.edu.my') {
+                showGoogleError("Access Restricted. Student access is currently limited to the authorized developer.");
+                return;
+            }
+
             // Valid! Move to Password step
             document.getElementById('googleDisplayEmail').textContent = email;
             document.getElementById('googleStep1').classList.add('hidden');

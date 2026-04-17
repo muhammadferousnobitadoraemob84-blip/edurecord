@@ -197,18 +197,29 @@
 
                     <!-- Controls: Search & Filter -->
                     <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto md:mr-auto md:ml-6" id="studentControls">
-                        <div class="relative w-full sm:w-64 md:w-80">
+                        <div class="relative w-full sm:w-56 md:w-64">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="ph ph-magnifying-glass text-gray-400 text-lg"></i>
                             </div>
-                            <input type="text" id="searchInput" placeholder="Search subject or title..." 
+                            <input type="text" id="searchInput" placeholder="Search subject, class..." 
                                 class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors duration-200 sm:text-sm">
                         </div>
 
-                        <div class="relative w-full sm:w-48">
+                        <div class="relative w-full sm:w-36">
                             <select id="subjectFilter" 
                                 class="appearance-none block w-full pl-3 pr-10 py-2.5 border border-gray-300 rounded-xl leading-5 bg-white focus:outline-none focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors duration-200 sm:text-sm font-medium cursor-pointer">
                                 <option value="ALL">All Subjects</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="ph ph-caret-down text-gray-500"></i>
+                            </div>
+                        </div>
+
+                        <!-- NEW: Class Filter -->
+                        <div class="relative w-full sm:w-36">
+                            <select id="classFilter" 
+                                class="appearance-none block w-full pl-3 pr-10 py-2.5 border border-gray-300 rounded-xl leading-5 bg-white focus:outline-none focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors duration-200 sm:text-sm font-medium cursor-pointer">
+                                <option value="ALL">All Classes</option>
                             </select>
                             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                 <i class="ph ph-caret-down text-gray-500"></i>
@@ -277,25 +288,67 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1.5">Teacher Name <span class="text-red-500">*</span></label>
-                                <input type="text" id="uploadTeacher" required placeholder="e.g. CIKGU AMIRAH" class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase font-medium">
+                                <label class="block text-sm font-bold text-gray-700 mb-1.5">Class Grade <span class="text-red-500">*</span></label>
+                                <select id="uploadClass" required class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm font-medium cursor-pointer">
+                                    <option value="" disabled selected>Select class</option>
+                                    <optgroup label="Form 1">
+                                        <option value="1 JUJUR">1 JUJUR</option>
+                                        <option value="1 IKHLAS">1 IKHLAS</option>
+                                        <option value="1 SYUKUR">1 SYUKUR</option>
+                                        <option value="1 SUCI">1 SUCI</option>
+                                    </optgroup>
+                                    <optgroup label="Form 2">
+                                        <option value="2 KASIH">2 KASIH</option>
+                                        <option value="2 MESRA">2 MESRA</option>
+                                        <option value="2 SAYANG">2 SAYANG</option>
+                                        <option value="2 MURNI">2 MURNI</option>
+                                    </optgroup>
+                                    <optgroup label="Form 3">
+                                        <option value="3 YAKIN">3 YAKIN</option>
+                                        <option value="3 GIGIH">3 GIGIH</option>
+                                        <option value="3 RAJIN">3 RAJIN</option>
+                                        <option value="3 TEKUN">3 TEKUN</option>
+                                    </optgroup>
+                                    <optgroup label="Form 4">
+                                        <option value="4 SOPAN">4 SOPAN</option>
+                                        <option value="4 HORMAT">4 HORMAT</option>
+                                        <option value="4 HEMAH">4 HEMAH</option>
+                                        <option value="4 MULIA">4 MULIA</option>
+                                    </optgroup>
+                                    <optgroup label="Form 5">
+                                        <option value="5 BAKTI">5 BAKTI</option>
+                                        <option value="5 KHIDMAT">5 KHIDMAT</option>
+                                        <option value="5 BUDI">5 BUDI</option>
+                                        <option value="5 JASA">5 JASA</option>
+                                    </optgroup>
+                                </select>
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Lesson Title <span class="text-red-500">*</span></label>
-                            <input type="text" id="uploadTitle" required placeholder="e.g. KARANGAN BERFORMAT" class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase font-medium">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1.5">Teacher Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="uploadTeacher" required placeholder="e.g. CIKGU AMIRAH" class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1.5">Lesson Title <span class="text-red-500">*</span></label>
+                                <input type="text" id="uploadTitle" required placeholder="e.g. KARANGAN BERFORMAT" class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm uppercase font-medium">
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1.5">Date <span class="text-red-500">*</span></label>
                                 <input type="date" id="uploadDate" required class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm cursor-pointer font-medium">
                             </div>
                             <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1.5">Auto-Delete Deadline <span class="text-red-500">*</span></label>
+                                <input type="date" id="uploadDeadline" required class="block w-full px-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mustard/50 focus:border-mustard transition-colors text-sm cursor-pointer font-medium">
+                                <p class="text-[10px] text-gray-400 mt-1">Video deleted permanently on this date.</p>
+                            </div>
+                            <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1.5">Media File (Audio/Video) <span class="text-red-500">*</span></label>
                                 <input type="file" id="uploadFile" accept="video/*, audio/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-mustard/10 file:text-mustardDark hover:file:bg-mustard/20 file:transition-colors file:cursor-pointer border border-gray-200 rounded-xl bg-gray-50 focus:outline-none cursor-pointer">
-                                <p class="text-xs text-gray-400 mt-1">Supports massive files. Seamless local storage.</p>
                             </div>
                         </div>
 
@@ -389,7 +442,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // ==========================================
@@ -580,16 +633,20 @@
         window.handleFilter = function() {
             const searchInput = document.getElementById('searchInput');
             const subjectFilter = document.getElementById('subjectFilter');
+            const classFilter = document.getElementById('classFilter');
             
             const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
             const selectedSubject = subjectFilter ? subjectFilter.value : 'ALL';
+            const selectedClass = classFilter ? classFilter.value : 'ALL';
 
             const filteredData = recordingsData.filter(item => {
                 const matchesSearch = item.subject.toLowerCase().includes(searchTerm) || 
                                       item.title.toLowerCase().includes(searchTerm) ||
-                                      item.teacher.toLowerCase().includes(searchTerm);
+                                      item.teacher.toLowerCase().includes(searchTerm) ||
+                                      (item.classGrade && item.classGrade.toLowerCase().includes(searchTerm));
                 const matchesSubject = selectedSubject === 'ALL' || item.subject === selectedSubject;
-                return matchesSearch && matchesSubject;
+                const matchesClass = selectedClass === 'ALL' || item.classGrade === selectedClass;
+                return matchesSearch && matchesSubject && matchesClass;
             });
             renderCards(filteredData);
         };
@@ -597,6 +654,7 @@
         window.clearFilters = function() {
             document.getElementById('searchInput').value = '';
             document.getElementById('subjectFilter').value = 'ALL';
+            if(document.getElementById('classFilter')) document.getElementById('classFilter').value = 'ALL';
             window.handleFilter();
         };
 
@@ -618,6 +676,19 @@
                 option.value = subject;
                 option.textContent = subject;
                 subjectFilter.appendChild(option);
+            });
+        }
+
+        function populateClassFilter(data) {
+            const classFilter = document.getElementById('classFilter');
+            if(!classFilter) return;
+            const classes = [...new Set(data.map(item => item.classGrade).filter(Boolean))].sort();
+            classFilter.innerHTML = '<option value="ALL">All Classes</option>';
+            classes.forEach(cls => {
+                const option = document.createElement('option');
+                option.value = cls;
+                option.textContent = cls;
+                classFilter.appendChild(option);
             });
         }
 
@@ -646,8 +717,14 @@
                 const cardHTML = `
                     <article class="bg-white border border-gray-200 rounded-3xl p-6 flex flex-col h-full shadow-sm hover:shadow-xl hover:border-mustard/50 transition-all duration-300 transform hover:-translate-y-1.5 relative overflow-hidden group card-enter" style="animation-delay: ${delay}s;">
                         <div class="relative z-10 flex-grow flex flex-col">
-                            <div class="flex items-center gap-1.5 text-xs font-extrabold tracking-widest uppercase mb-3 text-mustardDark">
-                                <i class="ph-fill ph-calendar-blank"></i> ${rec.dateStr}
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+                                <span class="text-[10px] font-extrabold tracking-widest uppercase text-mustardDark bg-mustard/10 px-2 py-1 rounded-md border border-mustard/20">
+                                    <i class="ph-fill ph-calendar-blank"></i> ${rec.dateStr}
+                                </span>
+                                <span class="text-[10px] font-extrabold tracking-widest uppercase text-blue-700 bg-blue-50 px-2 py-1 rounded-md border border-blue-100">
+                                    <i class="ph-fill ph-users-three"></i> ${rec.classGrade || 'GENERAL'}
+                                </span>
+                                ${rec.deadlineStr ? `<span class="text-[10px] font-extrabold tracking-widest uppercase text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100"><i class="ph-fill ph-timer"></i> Exp: ${rec.deadlineStr}</span>` : ''}
                             </div>
                             <h3 class="text-2xl font-black mb-1.5 leading-tight tracking-tight text-gray-900 line-clamp-2">${rec.subject}</h3>
                             <p class="text-base font-semibold mb-4 text-gray-600 line-clamp-2 flex-grow">${rec.title}</p>
@@ -806,22 +883,40 @@
         async function loadLocalData() {
             try {
                 const database = await getDB();
-                const tx = database.transaction(STORE_NAME, 'readonly');
+                const tx = database.transaction(STORE_NAME, 'readwrite');
                 const store = tx.objectStore(STORE_NAME);
                 const request = store.getAll();
 
                 request.onsuccess = () => {
                     let stored = request.result || [];
-                    stored = stored.filter(rec => !(rec.fileUrl && typeof rec.fileUrl === 'string' && rec.fileUrl.includes('w3schools')));
+                    const now = new Date();
+                    now.setHours(0,0,0,0);
 
-                    recordingsData = stored.map(rec => {
-                        if (rec.fileBlob) rec.fileUrl = URL.createObjectURL(rec.fileBlob);
+                    let validData = [];
+                    stored.forEach(rec => {
+                        let isExpired = false;
+                        if (rec.deadline) {
+                            const expDate = new Date(rec.deadline);
+                            expDate.setHours(23,59,59,999);
+                            if (now > expDate) isExpired = true;
+                        }
+
+                        if (isExpired || (rec.fileUrl && typeof rec.fileUrl === 'string' && rec.fileUrl.includes('w3schools'))) {
+                            store.delete(rec.id); // Permanently delete expired recordings to free up local disk space!
+                        } else {
+                            validData.push(rec);
+                        }
+                    });
+
+                    recordingsData = validData.map(rec => {
+                        if (rec.fileBlob && !rec.fileUrl) rec.fileUrl = URL.createObjectURL(rec.fileBlob);
                         return rec;
                     });
 
                     recordingsData.sort((a, b) => new Date(b.sortDate) - new Date(a.sortDate));
                     if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
                     populateSubjectFilter(recordingsData);
+                    populateClassFilter(recordingsData);
                     window.handleFilter();
                 };
             } catch (e) {
@@ -835,13 +930,31 @@
 
             onSnapshot(recordingsRef, (snapshot) => {
                 let newData = [];
-                snapshot.forEach(doc => newData.push({ id: doc.id, ...doc.data() }));
+                const now = new Date();
+                now.setHours(0,0,0,0);
+
+                snapshot.forEach(document => {
+                    const data = document.data();
+                    let isExpired = false;
+                    if (data.deadline) {
+                        const expDate = new Date(data.deadline);
+                        expDate.setHours(23,59,59,999);
+                        if (now > expDate) isExpired = true;
+                    }
+
+                    if (isExpired) {
+                        // Securely delete from cloud to free up bucket quota!
+                        deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'recordings', document.id)).catch(e => console.log(e));
+                    } else if (data.fileUrl && !data.fileUrl.includes('w3schools')) {
+                        newData.push({ id: document.id, ...data });
+                    }
+                });
                 
-                newData = newData.filter(rec => rec.fileUrl && !rec.fileUrl.includes('w3schools'));
                 recordingsData = newData.sort((a, b) => new Date(b.sortDate) - new Date(a.sortDate));
                 
                 if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
                 populateSubjectFilter(recordingsData);
+                populateClassFilter(recordingsData);
                 window.handleFilter();
             }, (error) => {
                 if (document.getElementById('initialLoader')) document.getElementById('initialLoader').remove();
@@ -877,9 +990,11 @@
                 if (recordingsData.length >= 60) throw new Error(`Limit reached (60 recordings).`);
 
                 let subject = document.getElementById('uploadSubject').value || "OTHER";
+                const classGrade = document.getElementById('uploadClass').value;
                 const teacher = document.getElementById('uploadTeacher').value.toUpperCase();
                 const title = document.getElementById('uploadTitle').value.toUpperCase();
                 const dateInput = document.getElementById('uploadDate').value;
+                const deadlineInput = document.getElementById('uploadDeadline').value;
                 const file = document.getElementById('uploadFile').files[0];
 
                 if (file && file.size > 600 * 1024 * 1024 * 1024) throw new Error("File exceeds 600GB limit.");
@@ -888,6 +1003,13 @@
                 const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
                 const displayDateStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
                 
+                // Format deadline display
+                let deadlineStr = null;
+                if (deadlineInput) {
+                    const exp = new Date(deadlineInput);
+                    deadlineStr = `${exp.getDate()} ${months[exp.getMonth()]} ${exp.getFullYear()}`;
+                }
+
                 let downloadURL = ""; 
 
                 if (isCloudEnabled) {
@@ -901,12 +1023,12 @@
                         } catch (e) { throw new Error("Cloud upload blocked."); }
                     }
                     const recordingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'recordings');
-                    await addDoc(recordingsRef, { subject, teacher, title, sortDate: dateInput, dateStr: displayDateStr, fileUrl: downloadURL, createdAt: Date.now() });
+                    await addDoc(recordingsRef, { subject, classGrade, teacher, title, sortDate: dateInput, dateStr: displayDateStr, deadline: deadlineInput, deadlineStr: deadlineStr, fileUrl: downloadURL, createdAt: Date.now() });
                 } else {
                     submitText.textContent = "Saving locally...";
                     const newRecord = {
                         id: Date.now().toString(),
-                        subject, teacher, title, sortDate: dateInput, dateStr: displayDateStr, createdAt: Date.now(), fileBlob: file
+                        subject, classGrade, teacher, title, sortDate: dateInput, dateStr: displayDateStr, deadline: deadlineInput, deadlineStr: deadlineStr, createdAt: Date.now(), fileBlob: file
                     };
                     const database = await getDB();
                     await new Promise((resolve, reject) => {
@@ -922,7 +1044,12 @@
                 showToast('Lesson published successfully!');
                 document.getElementById('uploadForm').reset();
                 document.getElementById('uploadDate').valueAsDate = new Date();
-
+                
+                // Reset deadline to 30 days from now
+                const future = new Date();
+                future.setDate(future.getDate() + 30);
+                document.getElementById('uploadDeadline').valueAsDate = future;
+                
             } catch (error) {
                 showToast(error.message || 'Upload error.', true);
             } finally {
@@ -937,6 +1064,11 @@
         // ==========================================
         window.addEventListener('load', () => {
             document.getElementById('uploadDate').valueAsDate = new Date();
+            
+            // Set default deadline to 30 days into the future
+            const future = new Date();
+            future.setDate(future.getDate() + 30);
+            document.getElementById('uploadDeadline').valueAsDate = future;
             
             // Failsafe to stop loader inside Student View
             setTimeout(() => {
